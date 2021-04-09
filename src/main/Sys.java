@@ -1,4 +1,7 @@
-package sys;
+package main;
+
+import sys.Auction;
+import sys.User;
 
 import java.util.ArrayList;
 import java.util.Scanner;
