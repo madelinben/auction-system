@@ -33,4 +33,13 @@ public class Sys {
         }
         System.exit(0);
     }
+
+    public static void placeAuction() {
+    }
+
+    public static void browseAuction() {
+    }
+
+    public static void setupAccount() {
+    }
 }
