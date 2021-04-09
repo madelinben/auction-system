@@ -1,13 +1,12 @@
-package main;
+package data;
 
 import sys.Auction;
 import sys.User;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
+import org.apache.commons.csv.*;
+import org.apache.commons.io.input.*;
 
 public class Sys {
 
@@ -23,13 +22,20 @@ public class Sys {
         displayMenu();
     }
 
-    public static void importStorage() {
+    public static void importStorage() throws IOException {
         String src = System.getProperty("user.dir") + "/src/data/";
         File dir = new File(src);
         File[] fileList = dir.listFiles();
 
-        for(File f : fileList) {
-            System.out.println(f.toString());
+        for(File file : fileList) {
+//            System.out.println(file.toString());
+
+            InputStream fileData = new FileInputStream(file);
+            CSVParser parser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(new InputStreamReader(new BOMInputStream(fileData), "UTF-8"));
+
+            for (CSVRecord record : parser) {
+
+            }
         }
     }
 
