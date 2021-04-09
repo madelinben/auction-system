@@ -15,7 +15,16 @@ public class Sys {
 //    private ArrayList<Seller> sellers = new ArrayList<Seller>();
     private ArrayList<Auction> auctions = new ArrayList<Auction>();
 
-    public static void displayMenu() throws java.lang.Exception{
+    public static void entry() throws java.lang.Exception {
+        importStorage();
+        displayMenu();
+    }
+
+    public static void importStorage() {
+
+    }
+
+    public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
             System.out.println("Main Menu:\nQ - Quit");
