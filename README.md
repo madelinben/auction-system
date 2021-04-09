@@ -4,7 +4,8 @@ University Group Project to develop a working eAuction console application proto
 ## Organisation:
 ***Annotation:***
 
-*Suitable and descriptive comments must explain method functionality and any assumptions, following the *JavaDocs notation format:*
+Suitable and descriptive comments must explain method functionality and any assumptions, following the 
+*JavaDocs notation format:*
 ```java
 /**
 * [METHOD_DESCRIPTION]
@@ -32,22 +33,23 @@ Branch names must follow convention of `[TYPE]/[SPRINT-NAME]`.
 ![Example Use Case Diagram](docs/use-case-diagram.png)
 
 ## Requirements:
-Users:
+
+***Users:***
 - A user must be able to setup an account.
 - Can act as either a Seller or Buyer.
 - All users should be able to browse Auctions in progress.
 
-Buyers:
+***Buyers:***
 - Select in progress Auctions.
 - Place bids on any item whose Auction has not closed.
 
-Bids:
+***Bids:***
 - System enforces an upper/lower bidding increment of 20% and 10% of the starting price.
 
-Sellers:
+***Sellers:***
 - Can start Auctions by listing an item to be sold.
     
-Auctions:
+***Auctions:***
 - Only started when a Seller inputs data (item description, start and reserve price, closing date).
 - System enforces a closing date ≤7 days from the current date 
 - Once data has been provided, Auction is set to pending and the Seller must verify the listing before it starts.
@@ -55,25 +57,23 @@ Auctions:
 - Buyer with the highest bid is informed of their victory if an items reserve price is met when an Auction closes.
 - If items reserve price has not been met, all Buyers who made a bid are informed and the Auction is closed.
 
-Menu:
+***Menu:***
 - System must allow multiple users to conduct auctions electronically (using multi-threading).
 - Both sellers and auctions may be temporarily blocked which prevents the sellers from logging on or the auctions from being browsed or bid upon respectively.
 
 ## Features:
-- ***Menu System:***
+* ***Menu System:***
 
-[x] Establish working directory and Class structure.
+* [x] Establish working directory and Class structure.
 
-- ***Account Management:***
+* ***Persistent Storage:***
 
-- ***Auction Management:***
+* ***Account Management:***
 
-- ***Bid Method:***
+* ***Auction Setup:***
 
-- ***Verification and Authentication:***
+* ***Bid Method:***
 
-- ***Notified Feedback:***
+* ***System Verification:***
 
-- ***Persistent Storage:***
-
-[ ] 
+* ***Notified Feedback:***
