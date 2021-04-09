@@ -1,15 +1,16 @@
 package sys;
 
+import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 public class Sys {
 
     public static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) throws Exception {
-        displayMenu();
-    }
+    private ArrayList<User> users = new ArrayList<User>();
+//    private ArrayList<Buyer> buyers = new ArrayList<Buyer>();
+//    private ArrayList<Seller> sellers = new ArrayList<Seller>();
+    private ArrayList<Auction> auctions = new ArrayList<Auction>();
 
     public static void displayMenu() throws java.lang.Exception{
         boolean terminate = false;

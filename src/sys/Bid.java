@@ -1,9 +1,9 @@
 package sys;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Bid {
     public double amount;
     public Buyer who;
-    public Date when;
+    public LocalDate when;
 }

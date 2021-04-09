@@ -1,12 +1,17 @@
 package sys;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Auction {
     private double startPrice;
     private double reservePrice;
-    private Date closeDate;
+    private LocalDate closeDate;
     private char status;
+
+    private Seller owner;
+    private Item item;
+    private ArrayList<Bid> bids = new ArrayList<Bid>();
 
     public static void placeBid() {
     }
