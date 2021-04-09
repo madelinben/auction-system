@@ -3,8 +3,11 @@ package main;
 import sys.Auction;
 import sys.User;
 
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 
 public class Sys {
 
@@ -21,7 +24,13 @@ public class Sys {
     }
 
     public static void importStorage() {
+        String src = System.getProperty("user.dir") + "/src/data/";
+        File dir = new File(src);
+        File[] fileList = dir.listFiles();
 
+        for(File f : fileList) {
+            System.out.println(f.toString());
+        }
     }
 
     public static void displayMenu() throws Exception {
