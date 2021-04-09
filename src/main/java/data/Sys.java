@@ -23,20 +23,29 @@ public class Sys {
     }
 
     public static void importStorage() throws IOException {
-        String src = System.getProperty("user.dir") + "/src/data/";
-        File dir = new File(src);
+        String src = System.getProperty("user.dir") + "/src/main/resources/";
+
+/*        File dir = new File(src);
         File[] fileList = dir.listFiles();
-
         for(File file : fileList) {
-//            System.out.println(file.toString());
+            System.out.println(file.toString());
+        }*/
 
-            InputStream fileData = new FileInputStream(file);
-            CSVParser parser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(new InputStreamReader(new BOMInputStream(fileData), "UTF-8"));
+        File accountCSV = new File(src + "user.csv");
+        InputStream accountData = new FileInputStream(accountCSV);
+        CSVParser parser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(new InputStreamReader(new BOMInputStream(accountData), "UTF-8"));
 
-            for (CSVRecord record : parser) {
-
+//        Name,Password,Type,Blocked
+        for (CSVRecord record : parser) {
+            if (record.isSet("Name")) {
+                if (!record.get("Name").isEmpty()) {
+                    System.out.println(record.get("Name"));
+                }
             }
         }
+
+
+
     }
 
     public static void displayMenu() throws Exception {
