@@ -18,7 +18,7 @@ public class Sys {
     public static void displayMenu() throws java.lang.Exception{
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nQ - Quit");
+            System.out.println("Main Menu:\nA - Create Auction\nQ - Quit");
             String operation = new Scanner(System.in).nextLine().trim().toLowerCase();
             char[] input = operation.toCharArray();
             if(input.length != 1){
@@ -26,6 +26,9 @@ public class Sys {
                 displayMenu();
             }
             switch (input[0]) {
+                case 'a':
+                    placeAuction();
+                    break;
                 case 'q':
                     scanner.close();
                     terminate = true;
@@ -39,6 +42,7 @@ public class Sys {
     }
 
     public static void placeAuction() {
+        System.out.println("testing");
     }
 
     public static void browseAuction() {
