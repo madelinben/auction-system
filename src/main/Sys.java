@@ -2,6 +2,8 @@ package main;
 
 import sys.Auction;
 import sys.User;
+import sys.Seller;
+import sys.*;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -42,7 +44,21 @@ public class Sys {
     }
 
     public static void placeAuction() {
-        System.out.println("testing");
+        System.out.println("placing auction");
+        Seller testseller = new Seller("testname", "testpass");
+
+        System.out.println("seller, input item description: ");
+        String item_desc = scanner.nextLine();
+        System.out.println("input start price in £: ");
+        String str_start_price = scanner.nextLine();
+        System.out.println("input reserve price: ");
+        String str_reserve_price = scanner.nextLine();
+        System.out.println("input close date (YYYY-MM-DD): ");
+        String str_close_date = scanner.nextLine();
+
+        Item item = new Item();
+        item.description = item_desc;
+        Auction new_auction = new Auction(testseller, item);
     }
 
     public static void browseAuction() {

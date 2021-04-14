@@ -13,6 +13,11 @@ public class Auction {
     private Item item;
     private ArrayList<Bid> bids = new ArrayList<Bid>();
 
+    public Auction(Seller owner, Item item){
+        this.owner = owner;
+        this.item = item;
+    }
+
     public static void placeBid() {
     }
 
