@@ -50,7 +50,7 @@ public class Sys {
         System.out.println("seller, input item description: ");
         String item_desc = scanner.nextLine();
         System.out.println("input start price in £: ");
-        String str_start_price = scanner.nextLine();
+        double start_price = getAnswerDouble("input start price in £: ", 0);
         System.out.println("input reserve price: ");
         String str_reserve_price = scanner.nextLine();
         System.out.println("input close date (YYYY-MM-DD): ");
@@ -65,5 +65,35 @@ public class Sys {
     }
 
     public static void setupAccount() {
+    }
+
+    public static int getAnswerInt(String question, int defaultInt){
+        int i=0;
+        while (i<3){
+            System.out.println(question);
+            try {
+                int answer = Integer.parseInt(scanner.nextLine());
+                return(answer);
+            }
+            catch (Exception NumberFormatException){
+                System.out.println("Cannot parse number, try again.");
+            }
+        }
+        return(defaultInt);
+    }
+
+    public static double getAnswerDouble(String question, double defaultDouble){
+        int i=0;
+        while (i<3){
+            System.out.println(question);
+            try {
+                double answer = Double.parseDouble(scanner.nextLine());
+                return(answer);
+            }
+            catch (Exception NumberFormatException){
+                System.out.println("Cannot parse number, try again.");
+            }
+        }
+        return(defaultDouble);
     }
 }
