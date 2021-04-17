@@ -50,9 +50,9 @@ Branch names must follow convention of `[TYPE]/[SPRINT-NAME]`.
 - Can start Auctions by listing an item to be sold.
     
 ***Auctions:***
-- Only started when a Seller inputs data (item description, start and reserve price, closing date).
+- Only started when a Seller inputs main (item description, start and reserve price, closing date).
 - System enforces a closing date ≤7 days from the current date 
-- Once data has been provided, Auction is set to pending and the Seller must verify the listing before it starts.
+- Once main has been provided, Auction is set to pending and the Seller must verify the listing before it starts.
 - Each Auction keeps track of every bid made against an item.
 - Buyer with the highest bid is informed of their victory if an items reserve price is met when an Auction closes.
 - If items reserve price has not been met, all Buyers who made a bid are informed and the Auction is closed.

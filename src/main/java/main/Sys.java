@@ -1,6 +1,8 @@
-package data;
+package main;
 
 import sys.Auction;
+import sys.Buyer;
+import sys.Seller;
 import sys.User;
 
 import java.io.*;
@@ -12,40 +14,47 @@ public class Sys {
 
     public static Scanner scanner = new Scanner(System.in);
 
-    private ArrayList<User> users = new ArrayList<User>();
-//    private ArrayList<Buyer> buyers = new ArrayList<Buyer>();
-//    private ArrayList<Seller> sellers = new ArrayList<Seller>();
+    private ArrayList<Buyer> allBuyers = new ArrayList<Buyer>();
+    private ArrayList<Seller> allSellers = new ArrayList<Seller>();
     private ArrayList<Auction> auctions = new ArrayList<Auction>();
 
-    public static void entry() throws java.lang.Exception {
-        importStorage();
+    public void entry() throws java.lang.Exception {
+        importUsers();
         displayMenu();
     }
 
-    public static void importStorage() throws IOException {
+    public void importUsers() throws IOException {
         String src = System.getProperty("user.dir") + "/src/main/resources/";
-
-/*        File dir = new File(src);
-        File[] fileList = dir.listFiles();
-        for(File file : fileList) {
-            System.out.println(file.toString());
-        }*/
-
         File accountCSV = new File(src + "user.csv");
         InputStream accountData = new FileInputStream(accountCSV);
         CSVParser parser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(new InputStreamReader(new BOMInputStream(accountData), "UTF-8"));
-
-//        Name,Password,Type,Blocked
         for (CSVRecord record : parser) {
+            String accountName = null, accountPassword = null;
             if (record.isSet("Name")) {
                 if (!record.get("Name").isEmpty()) {
-                    System.out.println(record.get("Name"));
+                    accountName = record.get("Name");
+                }
+            }
+            if (record.isSet("Password")) {
+                if (!record.get("Password").isEmpty()) {
+                    accountPassword = record.get("Password");
+                }
+            }
+            if (record.isSet("isSeller")) {
+                if (!record.get("isSeller").isEmpty()) {
+                    if (Boolean.parseBoolean(record.get("isSeller")) == true) {
+                        if (record.isSet("Blocked")) {
+                            if (!record.get("Blocked").isEmpty()) {
+                                boolean accountBlocked = Boolean.parseBoolean(record.get("Blocked"));
+                                allSellers.add(new Seller(accountName, accountPassword, accountBlocked));
+                            }
+                        }
+                    } else {
+                        allBuyers.add(new Buyer(accountName, accountPassword));
+                    }
                 }
             }
         }
-
-
-
     }
 
     public static void displayMenu() throws Exception {

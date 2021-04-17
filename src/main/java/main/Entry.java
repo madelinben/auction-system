@@ -1,4 +1,4 @@
-package data;
+package main;
 
 public class Entry {
     public static void main(String[] args) throws Exception {
