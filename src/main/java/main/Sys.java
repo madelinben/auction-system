@@ -82,7 +82,7 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nA - Account Management\nB - Create Auction\nQ - Quit");
+            System.out.println("Main Menu:\nA - Account Management\nB - Create Auction\nC - Browse Auctions\nQ - Quit");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -247,6 +247,37 @@ public class Sys {
         allAuctions.add(new Auction(seller, item, startPrice, reservePrice, daysTillClose));
     }
 
+    public static void viewAuctions() {
+        int i=0;
+        System.out.println("Num|Item|Seller|Highest bid");
+        for (Auction auction : allAuctions){
+            Bid highestBid = auction.getHighestBid();
+            double highestAmount;
+            if (highestBid == null) { highestAmount = 0; }
+            else {highestAmount = highestBid.amount;}
+            System.out.printf("%d|%s|%s|£%.2f\n", i, auction.item.description, auction.owner.getUsername(), highestAmount);
+            i++;
+        }
+    }
+
+    public static Auction browseAuction() {
+        int i=0;
+        while (i<3) {
+            i++;
+            viewAuctions();
+            int choice = getAnswerInt("Enter the number of the auction you want to select: ", -1);
+            if (choice >= 0) {
+                try {
+                    return allAuctions.get(choice);
+                } catch (Exception exception) {
+                    System.out.println("Number is out of bounds.");
+                }
+            }
+        }
+        System.out.println("No auction selected");
+        return null;
+    }
+
     public static int getAnswerInt(String question, int defaultInt){
         int i=0;
         while (i<3){
@@ -275,17 +306,5 @@ public class Sys {
             }
         }
         return(defaultDouble);
-    }
-
-    public static void browseAuction() {
-        int i=0;
-        for (Auction auction : allAuctions){
-            Bid highestBid = auction.getHighestBid();
-            double highestAmount;
-            if (highestBid == null) { highestAmount = 0; }
-            else {highestAmount = highestBid.amount;}
-            System.out.println("Num|Item|Seller|Highest bid");
-            System.out.printf("%d|%s|%s|£%.2f", i, auction.item.description, auction.owner.getUsername(), highestAmount);
-        }
     }
 }
