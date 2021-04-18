@@ -9,8 +9,5 @@ public class Seller extends User {
     }
 
     public void setBlocked() { this.isBlocked = !this.isBlocked; }
-
-    public boolean isBlocked() {
-        return this.isBlocked;
-    }
+    public boolean isBlocked() { return this.isBlocked; }
 }
