@@ -3,15 +3,11 @@ package sys;
 public class Seller extends User {
     private boolean isBlocked;
 
-    public Seller(String username, String password) {
+    public Seller(String username, String password, boolean blocked) {
         super(username, password);
-        this.isBlocked = false;
+        this.isBlocked = blocked;
     }
 
-    public static boolean isBlocked() {
-        return true;
-    }
-
-    public static void setBlocked() {
-    }
+    public void setBlocked() { this.isBlocked = !this.isBlocked; }
+    public boolean isBlocked() { return this.isBlocked; }
 }
