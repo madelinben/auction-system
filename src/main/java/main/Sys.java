@@ -1,11 +1,9 @@
 package main;
 
-import sys.Auction;
-import sys.Buyer;
-import sys.Seller;
-import sys.User;
+import sys.*;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 import org.apache.commons.csv.*;
 import org.apache.commons.io.input.*;
@@ -23,6 +21,29 @@ public class Sys {
     public void entry() throws java.lang.Exception {
         importUsers();
         displayMenu();
+    }
+
+    public static CSVParser readCSV(String src) throws IOException {
+        String path = System.getProperty("user.dir") + "/src/main/resources/";
+        File modelCSV = new File(path + src);
+        InputStream modelData = new FileInputStream(modelCSV);
+        CSVParser parser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(new InputStreamReader(new BOMInputStream(modelData), "UTF-8"));
+        return parser;
+    }
+
+    public static void writeCSV(String src, ArrayList<String> csvData) throws IOException {
+        try {
+            String path = System.getProperty("user.dir") + "/src/main/resources/";
+            FileWriter csvWriter = new FileWriter((path + src), true);
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator("\n");
+            CSVPrinter csvPrinter = new CSVPrinter(csvWriter, csvFormat);
+            csvPrinter.printRecord(csvData);
+            csvWriter.flush();
+            csvWriter.close();
+            csvPrinter.close();
+        } catch (Exception e) {
+            System.out.println("ERROR! Parsing CSV Record.");
+        }
     }
 
     public void importUsers() throws IOException {
@@ -85,7 +106,7 @@ public class Sys {
         System.exit(0);
     }
 
-    public static void displayAccountMenu() {
+    public static void displayAccountMenu() throws IOException {
         int count = 0;
         boolean terminate = false;
         while (count<3 && !terminate) {
@@ -99,7 +120,7 @@ public class Sys {
             } else {
                 switch (input[0]) {
                     case 'a':
-                        accountAuth();
+//                        accountAuth();
                         terminate = true;
                         break;
                     case 'b':
@@ -119,14 +140,13 @@ public class Sys {
         return;
     }
 
-    public static void accountSetup() {
+    public static void accountSetup() throws IOException {
         boolean valid = false;
         while (!valid) {
             System.out.println("Account Type [Buyer(B)/Seller(S)]: ");
             String inputType = scanner.nextLine().trim().toLowerCase();
             if (inputType.equals("b") || inputType.equals("s")) {
                 String inputUser, inputPwd;
-
                 while (true) {
                     System.out.println("Username: ");
                     inputUser = scanner.nextLine();
@@ -136,7 +156,6 @@ public class Sys {
                         break;
                     }
                 }
-
                 while (true) {
                     System.out.println("Password: ");
                     inputPwd = scanner.nextLine();
@@ -146,24 +165,25 @@ public class Sys {
                         break;
                     }
                 }
-
+                FileWriter csvWriter = new FileWriter(System.getProperty("user.dir") + "/src/main/resources/user.csv", true);
+                CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator("\n");
+                CSVPrinter csvPrinter = new CSVPrinter(csvWriter, csvFormat);
                 if (inputType.equals("s")) {
-
+                    csvPrinter.printRecord(inputUser, inputPwd, true, false);
+                    allSellers.add(new Seller(inputUser, inputPwd, false));
                 } else {
-
+                    csvPrinter.printRecord(inputUser, inputPwd, false, false);
+                    allBuyers.add(new Buyer(inputUser, inputPwd));
                 }
-
-
+                csvWriter.flush();
+                csvWriter.close();
+                csvPrinter.close();
+                valid = true;
             } else {
                 System.out.println("ERROR! Please select a valid Account Type.");
             }
-
-
-
-
-
-
         }
+        return;
     }
 
     public static void placeAuction() {

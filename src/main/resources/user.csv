@@ -1,2 +1,3 @@
 Name,Password,isSeller,Blocked
-Ben,password123,0,0
+Ben,password123,false,false
+Isaac,password,true,false
