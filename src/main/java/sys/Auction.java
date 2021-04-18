@@ -9,9 +9,9 @@ public class Auction {
     private LocalDate closeDate;
     private char status;
 
-    private Seller owner;
-    private Item item;
-    private ArrayList<Bid> bids = new ArrayList<Bid>();
+    public Seller owner;
+    public Item item;
+    public ArrayList<Bid> bids = new ArrayList<Bid>();
 
     public Auction(Seller owner, Item item, double startPrice, double reservePrice, int timeLimit){
         this.owner = owner;
@@ -22,6 +22,21 @@ public class Auction {
     }
 
     public static void placeBid() {
+    }
+
+    public Bid getHighestBid() {
+        if (!this.bids.isEmpty()) {
+            Bid highestBid = this.bids.get(0);
+            for (Bid bid : this.bids) {
+                if (bid.amount > highestBid.amount) {
+                    highestBid = bid;
+                }
+            }
+            return highestBid;
+        }
+        else{
+            return null;
+        }
     }
 
     public static void verify() {
