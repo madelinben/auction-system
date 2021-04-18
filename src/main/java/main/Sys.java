@@ -83,7 +83,7 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nQ - Quit");
+            System.out.println("Main Menu:\nA - Account Management\nQ - Quit");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -120,7 +120,11 @@ public class Sys {
             } else {
                 switch (input[0]) {
                     case 'a':
-//                        accountAuth();
+                        if (accountSession==null) {
+                            accountAuth();
+                        } else {
+                            accountSession = null;
+                        }
                         terminate = true;
                         break;
                     case 'b':
@@ -148,7 +152,7 @@ public class Sys {
             if (inputType.equals("b") || inputType.equals("s")) {
                 String inputUser, inputPwd;
                 while (true) {
-                    System.out.println("Username: ");
+                    System.out.print("Username: ");
                     inputUser = scanner.nextLine();
                     if (inputUser.matches("^[-\\\\w.]+$")) {
                         System.out.println("ERROR! Username should not include any special characters.");
@@ -157,7 +161,7 @@ public class Sys {
                     }
                 }
                 while (true) {
-                    System.out.println("Password: ");
+                    System.out.print("Password: ");
                     inputPwd = scanner.nextLine();
                     if (inputPwd.length()<8) {
                         System.out.println("ERROR! Password must be 8 digits or longer.");
@@ -186,12 +190,47 @@ public class Sys {
         return;
     }
 
+    public static void accountAuth() {
+        int count = 0;
+        boolean terminate = false;
+        while (count<3 && !terminate) {
+            System.out.print("Account Login\nUsername: ");
+            String inputUser = scanner.nextLine();
+            System.out.print("Password: ");
+            String inputPwd = scanner.nextLine();
+            boolean valid = false;
+            for (Buyer account : allBuyers) {
+                if (account.getUsername().equals(inputUser)) {
+                    if (account.checkPassword(inputPwd)) {
+                        valid = true;
+                    } else {
+                        System.out.println("ERROR! Invalid credentials.");
+                    }
+                }
+            }
+            if (!valid) {
+                for (Seller account : allSellers) {
+                    if (account.getUsername().equals(inputUser)) {
+                        if (account.checkPassword(inputPwd)) {
+                            valid = true;
+                        } else {
+                            System.out.println("ERROR! Invalid credentials.");
+                        }
+                    } else {
+                        System.out.println("ERROR! User Account does not exist.");
+                    }
+                }
+            }
+            if (valid) {
+                accountSession = inputUser;
+            }
+        }
+        return;
+    }
+
     public static void placeAuction() {
     }
 
     public static void browseAuction() {
-    }
-
-    public static void setupAccount() {
     }
 }
