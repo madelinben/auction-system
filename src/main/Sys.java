@@ -15,7 +15,7 @@ public class Sys {
     private ArrayList<User> users = new ArrayList<User>();
 //    private ArrayList<Buyer> buyers = new ArrayList<Buyer>();
 //    private ArrayList<Seller> sellers = new ArrayList<Seller>();
-    private ArrayList<Auction> auctions = new ArrayList<Auction>();
+    private static ArrayList<Auction> auctions = new ArrayList<Auction>();
 
     public static void displayMenu() throws java.lang.Exception{
         boolean terminate = false;
@@ -29,7 +29,9 @@ public class Sys {
             }
             switch (input[0]) {
                 case 'a':
-                    placeAuction();
+                    Seller testseller = new Seller("test", "testpass");
+                    placeAuction(testseller);
+                    System.out.println(auctions.get(0));
                     break;
                 case 'q':
                     scanner.close();
@@ -43,21 +45,20 @@ public class Sys {
         System.exit(0);
     }
 
-    public static void placeAuction() {
-        System.out.println("placing auction");
-        Seller testseller = new Seller("testname", "testpass");
-
-        System.out.println("seller, input item description: ");
-        String item_desc = scanner.nextLine();
-
+    public static void placeAuction(Seller seller) {
+        System.out.println("Enter a description of the item: ");
         Item item = new Item();
-        item.description = item_desc;
+        item.description = scanner.nextLine();
 
-        double startPrice = getAnswerDouble("input start price in £: ", 0);
-        double reservePrice = getAnswerDouble("input reserve price: ", 0);
-        int daysTillClose = getAnswerInt("In how many days will the auction close: ", 1);
+        double startPrice = getAnswerDouble("Enter starting price in £(x.xx): ", -1);
+        if (startPrice < 0) {System.out.println("cancelling auction creation."); return;}
+        double reservePrice = getAnswerDouble("Enter reserve price in £(x.xx): ", -1);
+        if (reservePrice < 0) {System.out.println("cancelling auction creation."); return;}
+        int daysTillClose = getAnswerInt("In how many days will the auction close (0-7 incl.): ", -1);
+        if (daysTillClose < 0) {System.out.println("cancelling auction creation."); return;}
 
-        Auction new_auction = new Auction(testseller, item, startPrice, reservePrice, daysTillClose);
+        Auction new_auction = new Auction(seller, item, startPrice, reservePrice, daysTillClose);
+        auctions.add(new_auction);
     }
 
     public static void browseAuction() {
