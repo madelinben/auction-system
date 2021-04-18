@@ -95,7 +95,9 @@ public class Sys {
                     case 'b':
                         Seller test = new Seller("test", "testpass", false);
                         placeAuction(test);
-                        System.out.println(allAuctions.get(0));
+                        break;
+                    case 'c':
+                        browseAuction();
                         break;
                     case 'q':
                         scanner.close();
@@ -276,5 +278,14 @@ public class Sys {
     }
 
     public static void browseAuction() {
+        int i=0;
+        for (Auction auction : allAuctions){
+            Bid highestBid = auction.getHighestBid();
+            double highestAmount;
+            if (highestBid == null) { highestAmount = 0; }
+            else {highestAmount = highestBid.amount;}
+            System.out.println("Num|Item|Seller|Highest bid");
+            System.out.printf("%d|%s|%s|£%.2f", i, auction.item.description, auction.owner.getUsername(), highestAmount);
+        }
     }
 }
