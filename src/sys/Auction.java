@@ -13,9 +13,12 @@ public class Auction {
     private Item item;
     private ArrayList<Bid> bids = new ArrayList<Bid>();
 
-    public Auction(Seller owner, Item item){
+    public Auction(Seller owner, Item item, double startPrice, double reservePrice, int timeLimit){
         this.owner = owner;
         this.item = item;
+        this.startPrice = startPrice;
+        this.reservePrice = reservePrice;
+        //code to convert timeLimit to closeDate
     }
 
     public static void placeBid() {

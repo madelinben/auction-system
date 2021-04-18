@@ -49,16 +49,15 @@ public class Sys {
 
         System.out.println("seller, input item description: ");
         String item_desc = scanner.nextLine();
-        System.out.println("input start price in £: ");
-        double start_price = getAnswerDouble("input start price in £: ", 0);
-        System.out.println("input reserve price: ");
-        String str_reserve_price = scanner.nextLine();
-        System.out.println("input close date (YYYY-MM-DD): ");
-        String str_close_date = scanner.nextLine();
 
         Item item = new Item();
         item.description = item_desc;
-        Auction new_auction = new Auction(testseller, item);
+
+        double startPrice = getAnswerDouble("input start price in £: ", 0);
+        double reservePrice = getAnswerDouble("input reserve price: ", 0);
+        int daysTillClose = getAnswerInt("In how many days will the auction close: ", 1);
+
+        Auction new_auction = new Auction(testseller, item, startPrice, reservePrice, daysTillClose);
     }
 
     public static void browseAuction() {
