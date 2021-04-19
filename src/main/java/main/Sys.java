@@ -173,7 +173,9 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nQ - Quit");
+            String header = "\nMenu:\nA - Create Account\nB - ";
+            if (accountSession == null) {header += "Sign In";} else {header += "Sign Out";}
+            System.out.print(header + "\nC - Create Auction\nD - Browse Auctions\nQ - Quit\n\nInput: ");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -181,10 +183,13 @@ public class Sys {
             } else {
                 switch (input[0]) {
                     case 'a':
-                        displayAccountMenu();
-                        break;
+                        accountSetup();
                     case 'b':
-                        viewAuctions();
+                        if (accountSession==null) {
+                            accountAuth();
+                        } else {
+                            accountSession = null;
+                        }
                         break;
                     case 'c':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
@@ -193,6 +198,9 @@ public class Sys {
                         else{
                             System.out.println("Not logged in.");
                         }
+                        break;
+                    case 'd':
+                        viewAuctions();
                         break;
                     case 'q':
                         scanner.close();
@@ -207,52 +215,15 @@ public class Sys {
         System.exit(0);
     }
 
-    public static void displayAccountMenu() throws IOException {
-        int count = 0;
-        boolean terminate = false;
-        while (count<3 && !terminate) {
-            String menuHeader = "Account Management Menu:\nA - ";
-            if (accountSession == null) {menuHeader += "Sign In";} else {menuHeader += "Sign Out";}
-            System.out.println(menuHeader + "\nB - Create Account\nQ - Return to Menu");
-            String userInput = scanner.nextLine().trim().toLowerCase();
-            char[] input = userInput.toCharArray();
-            if (input.length != 1) {
-                System.out.println("ERROR! Please select a valid input case.");
-            } else {
-                switch (input[0]) {
-                    case 'a':
-                        if (accountSession==null) {
-                            accountAuth();
-                        } else {
-                            accountSession = null;
-                        }
-                        terminate = true;
-                        break;
-                    case 'b':
-                        terminate = true;
-                        accountSetup();
-                    case 'q':
-                        terminate = true;
-                        break;
-                    default:
-                        System.out.println("ERROR! Please select a valid input case.");
-                        count++;
-                        break;
-                }
-            }
-        }
-        return;
-    }
-
     public static void accountSetup() throws IOException {
         boolean valid = false;
         while (!valid) {
-            System.out.println("Account Type [Buyer(B)/Seller(S)]: ");
+            System.out.print("Account Type [Buyer(B)/Seller(S)]: ");
             String inputType = scanner.nextLine().trim().toLowerCase();
             if (inputType.equals("b") || inputType.equals("s")) {
                 String inputUser, inputPwd;
                 while (true) {
-                    System.out.print("Username: ");
+                    System.out.print("Enter Username: ");
                     inputUser = scanner.nextLine();
                     if (inputUser.matches("^[-\\\\w.]+$")) {
                         System.out.println("ERROR! Username should not include any special characters.");
@@ -261,7 +232,7 @@ public class Sys {
                     }
                 }
                 while (true) {
-                    System.out.print("Password: ");
+                    System.out.print("Enter Password: ");
                     inputPwd = scanner.nextLine();
                     if (inputPwd.length()<8) {
                         System.out.println("ERROR! Password must be 8 digits or longer.");
@@ -295,9 +266,9 @@ public class Sys {
         boolean terminate = false;
         while (count<3 && !terminate) {
             count++;
-            System.out.print("Account Login\nUsername: ");
+            System.out.print("Enter Username: ");
             String inputUser = scanner.nextLine();
-            System.out.print("Password: ");
+            System.out.print("Enter Password: ");
             String inputPwd = scanner.nextLine();
             boolean valid = false;
             for (Buyer account : allBuyers) {
@@ -331,7 +302,7 @@ public class Sys {
     }
 
     public static void placeAuction(Seller seller) {
-        System.out.println("Enter a description of the item: ");
+        System.out.print("Enter a description of the item: ");
         Item item = new Item();
         item.description = scanner.nextLine();
         double startPrice = getAnswerDouble("Enter starting price in £(x.xx): ", -1);
@@ -341,7 +312,6 @@ public class Sys {
         int daysTillClose = getAnswerInt("In how many days will the auction close (0-7 incl.): ", -1);
         if (daysTillClose < 0) {System.out.println("cancelling auction creation."); return;}
         allAuctions.add(new Auction(seller, item, startPrice, reservePrice, daysTillClose));
-
         ArrayList<String> auctionData = new ArrayList<String>();
         auctionData.add(item.description);
         auctionData.add(seller.getUsername());
@@ -357,7 +327,7 @@ public class Sys {
     }
 
     public static void viewAuctions() throws IOException {
-        System.out.format("| %-5s | %-12s | %-12s | %-11s | %-11s | %-17s |%n|=======|==============|==============|=============|=============|===================|%n", "Index", "Item", "Seller", "Highest Bid", "Start Price", "Bidding Increment");
+        System.out.format("%n| %-5s | %-12s | %-12s | %-11s | %-11s | %-17s |%n|=======|==============|==============|=============|=============|===================|%n", "Index", "Item", "Seller", "Highest Bid", "Start Price", "Bidding Increment");
         for (int i=0; i<allAuctions.size(); i++) {
             Auction auction = allAuctions.get(i);
             Bid highestBid = auction.getHighestBid();
@@ -366,7 +336,6 @@ public class Sys {
             else {highestAmount = highestBid.amount;}
             System.out.format("| %-5d | %-12s | %-12s | £%-10.2f | £%-10.2f | £%-7.2f-£%-7.2f |%n", i+1, auction.item.description, auction.owner.getUsername(), highestAmount, auction.startPrice, auction.getLowerBidInc(), auction.getUpperBidInc());
         }
-
         if (accountSession!=null) {
             Buyer account = null;
             for (Buyer user : allBuyers) {
@@ -376,7 +345,7 @@ public class Sys {
                 int count = 0;
                 boolean terminate = false;
                 while (count<3 && !terminate) {
-                    System.out.print("Would you like to place a bid [Y/N]?");
+                    System.out.print("\nWould you like to place a bid [Y/N]?");
                     String userInput = new Scanner(System.in).nextLine().trim().toLowerCase();
                     if (userInput.equals("y")) {
                         Auction selected = selectAuction();
@@ -392,17 +361,12 @@ public class Sys {
                         count++;
                     }
                 }
-
             } else {
-                System.out.println("Must be signed into a Buyer Account in order to Place a Bid.");
+                System.out.println("\nMust be signed into a Buyer Account in order to Place a Bid.");
             }
-
         } else {
-            System.out.println("Must be signed into a Buyer Account in order to Place a Bid.");
+            System.out.println("\nMust be signed into a Buyer Account in order to Place a Bid.");
         }
-
-
-
     }
 
     public static Auction selectAuction() {
