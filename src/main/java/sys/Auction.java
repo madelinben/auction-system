@@ -18,7 +18,7 @@ public class Auction {
         this.item = item;
         this.startPrice = startPrice;
         this.reservePrice = reservePrice;
-        //code to convert timeLimit to closeDate
+        this.closeDate = LocalDate.now().plusDays(timeLimit);
     }
 
     public static void placeBid() {

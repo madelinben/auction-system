@@ -3,6 +3,8 @@ package main;
 import sys.*;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import org.apache.commons.csv.*;
 import org.apache.commons.io.input.*;
@@ -19,6 +21,7 @@ public class Sys {
 
     public void entry() throws java.lang.Exception {
         importUsers();
+        importAuctions();
         displayMenu();
     }
 
@@ -79,6 +82,48 @@ public class Sys {
         }
     }
 
+    public void importAuctions() throws IOException {
+        String src = System.getProperty("user.dir") + "/src/main/resources/";
+        File auctionCSV = new File(src + "auction.csv");
+        InputStream auctionData = new FileInputStream(auctionCSV);
+        CSVParser parser = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(new InputStreamReader(new BOMInputStream(auctionData), "UTF-8"));
+        for (CSVRecord record : parser) {
+            String sellerName = null;
+            Item item = new Item();
+            Double startPrice = null, reservePrice = null;
+            Integer timeLimit = null;
+            if (record.isSet("Item")) {
+                if (!record.get("Item").isEmpty()) {
+                    item.description = record.get("Item");
+                }
+            }
+            if (record.isSet("Seller")) {
+                if (!record.get("Seller").isEmpty()) {
+                    sellerName = record.get("Seller");
+                }
+            }
+            if (record.isSet("StartPrice")) {
+                if (!record.get("StartPrice").isEmpty()) {
+                    startPrice = Double.valueOf(record.get("StartPrice"));
+                }
+            }
+            if (record.isSet("ReservePrice")) {
+                if (!record.get("ReservePrice").isEmpty()) {
+                    reservePrice = Double.valueOf(record.get("ReservePrice"));
+                }
+            }
+            if (record.isSet("CloseDate")) {
+                if (!record.get("CloseDate").isEmpty()) {
+                    LocalDate closeDate = LocalDate.parse(record.get("CloseDate"));
+                    timeLimit = (int)ChronoUnit.DAYS.between(LocalDate.now(), closeDate);
+                }
+            }
+            if (sellerName != null && startPrice != null && reservePrice != null && timeLimit != null) {
+                allAuctions.add(new Auction(getSeller(sellerName), item, startPrice, reservePrice, timeLimit));
+            }
+        }
+    }
+
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
@@ -94,13 +139,7 @@ public class Sys {
                         break;
                     case 'b':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
-                            Seller loggedSeller = allSellers.get(0);
-                            for (Seller seller : allSellers){
-                                if (accountSession.equals(seller.getUsername())){
-                                    loggedSeller = seller;
-                                }
-                            }
-                            placeAuction(loggedSeller);
+                            placeAuction(getSeller(accountSession));
                         }
                         else{
                             System.out.println("Not logged in.");
@@ -257,6 +296,19 @@ public class Sys {
         int daysTillClose = getAnswerInt("In how many days will the auction close (0-7 incl.): ", -1);
         if (daysTillClose < 0) {System.out.println("cancelling auction creation."); return;}
         allAuctions.add(new Auction(seller, item, startPrice, reservePrice, daysTillClose));
+
+        ArrayList<String> auctionData = new ArrayList<String>();
+        auctionData.add(item.description);
+        auctionData.add(seller.getUsername());
+        auctionData.add(String.valueOf(startPrice));
+        auctionData.add(String.valueOf(reservePrice));
+        auctionData.add(LocalDate.now().plusDays(daysTillClose).toString());
+        try {
+            writeCSV("auction.csv", auctionData);
+        }
+        catch (Exception exception){
+            System.out.println("Couldn't write auction to file.");
+        }
     }
 
     public static void viewAuctions() {
@@ -288,6 +340,16 @@ public class Sys {
         }
         System.out.println("No auction selected");
         return null;
+    }
+
+    public static Seller getSeller(String username){
+        Seller loggedSeller = allSellers.get(0);
+        for (Seller seller : allSellers){
+            if (username.equals(seller.getUsername())){
+                return seller;
+            }
+        }
+        return loggedSeller;
     }
 
     public static int getAnswerInt(String question, int defaultInt){
