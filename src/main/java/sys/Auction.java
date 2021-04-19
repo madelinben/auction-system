@@ -14,7 +14,8 @@ public class Auction {
     public enum Status {
         OPEN,
         PENDING,
-        CLOSED
+        CLOSED,
+        BLOCKED
     }
     private double reservePrice;
     public LocalDate closeDate;
@@ -87,10 +88,19 @@ public class Auction {
         this.status = Status.CLOSED;
     }
 
-    public static boolean isBlocked() {
-        return true;
+    public boolean isBlocked() {
+        if (this.status == Status.BLOCKED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setBlocked() {
+        if (this.status == Status.BLOCKED) {
+            this.status = Status.OPEN;
+        } else {
+            this.status = Status.BLOCKED;
+        }
     }
 }
