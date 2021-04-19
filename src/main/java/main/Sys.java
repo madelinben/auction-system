@@ -127,7 +127,7 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nA - Account Management\nB - Create Auction\nC - Browse Auctions\nQ - Quit");
+            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nQ - Quit");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -138,15 +138,15 @@ public class Sys {
                         displayAccountMenu();
                         break;
                     case 'b':
+                        viewAuctions();
+                        break;
+                    case 'c':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
                             placeAuction(getSeller(accountSession));
                         }
                         else{
                             System.out.println("Not logged in.");
                         }
-                        break;
-                    case 'c':
-                        viewAuctions();
                         break;
                     case 'q':
                         scanner.close();
@@ -186,7 +186,6 @@ public class Sys {
                         terminate = true;
                         accountSetup();
                     case 'q':
-                        scanner.close();
                         terminate = true;
                         break;
                     default:
