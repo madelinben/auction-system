@@ -82,6 +82,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Imports auctions from file and puts them into allAuctions array.
+     * @throws IOException
+     */
     public void importAuctions() throws IOException {
         String src = System.getProperty("user.dir") + "/src/main/resources/";
         File auctionCSV = new File(src + "auction.csv");
@@ -90,8 +94,10 @@ public class Sys {
         for (CSVRecord record : parser) {
             String sellerName = null;
             Item item = new Item();
-            Double startPrice = null, reservePrice = null;
+            Double startPrice = null;
+            Double reservePrice = null;
             Integer timeLimit = null;
+            String status = null;
             if (record.isSet("Item")) {
                 if (!record.get("Item").isEmpty()) {
                     item.description = record.get("Item");
@@ -118,8 +124,15 @@ public class Sys {
                     timeLimit = (int)ChronoUnit.DAYS.between(LocalDate.now(), closeDate);
                 }
             }
-            if (sellerName != null && startPrice != null && reservePrice != null && timeLimit != null) {
-                allAuctions.add(new Auction(getSeller(sellerName), item, startPrice, reservePrice, timeLimit));
+            if (record.isSet("Status")) {
+                if (!record.get("Status").isEmpty()) {
+                    status = record.get("Status");
+                }
+            }
+            if (sellerName != null && startPrice != null && reservePrice != null && timeLimit != null && status != null) {
+                Auction newAuction = new Auction(getSeller(sellerName), item, startPrice, reservePrice, timeLimit);
+                newAuction.status = Auction.Status.valueOf(status);
+                allAuctions.add(newAuction);
             }
         }
     }
@@ -127,7 +140,8 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nQ - Quit");
+            updateAuctionTimers();
+            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nV - Verify Auction\nQ - Quit");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -143,6 +157,14 @@ public class Sys {
                     case 'c':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
                             placeAuction(getSeller(accountSession));
+                        }
+                        else{
+                            System.out.println("Not logged in.");
+                        }
+                        break;
+                    case 'v':
+                        if ((accountSession != null) && (!allSellers.isEmpty())) {
+                            verifyAuction(getSeller(accountSession));
                         }
                         else{
                             System.out.println("Not logged in.");
@@ -258,6 +280,7 @@ public class Sys {
                 if (account.getUsername().equals(inputUser)) {
                     if (account.checkPassword(inputPwd)) {
                         valid = true;
+                        break;
                     } else {
                         System.out.println("ERROR! Invalid credentials.");
                     }
@@ -268,6 +291,7 @@ public class Sys {
                     if (account.getUsername().equals(inputUser)) {
                         if (account.checkPassword(inputPwd)) {
                             valid = true;
+                            break;
                         } else {
                             System.out.println("ERROR! Invalid credentials.");
                         }
@@ -284,6 +308,23 @@ public class Sys {
         return;
     }
 
+    /**
+     * Updates the timers for auctions, closes them when necessary.
+     */
+    public static void updateAuctionTimers(){
+        for (Auction auction : allAuctions){
+            if (auction.status == Auction.Status.OPEN){
+                if (auction.closeDate.isBefore(LocalDate.now())){
+                    auction.close();
+                }
+            }
+        }
+    }
+
+    /**
+     * Allows the user to create an auction and add item information.
+     * @param seller the seller selling the item to be sold.
+     */
     public static void placeAuction(Seller seller) {
         System.out.println("Enter a description of the item: ");
         Item item = new Item();
@@ -293,8 +334,9 @@ public class Sys {
         double reservePrice = getAnswerDouble("Enter reserve price in £(x.xx): ", -1);
         if (reservePrice < 0) {System.out.println("cancelling auction creation."); return;}
         int daysTillClose = getAnswerInt("In how many days will the auction close (0-7 incl.): ", -1);
-        if (daysTillClose < 0) {System.out.println("cancelling auction creation."); return;}
-        allAuctions.add(new Auction(seller, item, startPrice, reservePrice, daysTillClose));
+        if (daysTillClose < 0 || daysTillClose > 7) {System.out.println("cancelling auction creation."); return;}
+        Auction newAuction = new Auction(seller, item, startPrice, reservePrice, daysTillClose);
+        allAuctions.add(newAuction);
 
         ArrayList<String> auctionData = new ArrayList<String>();
         auctionData.add(item.description);
@@ -302,6 +344,7 @@ public class Sys {
         auctionData.add(String.valueOf(startPrice));
         auctionData.add(String.valueOf(reservePrice));
         auctionData.add(LocalDate.now().plusDays(daysTillClose).toString());
+        auctionData.add(newAuction.status.name());
         try {
             writeCSV("auction.csv", auctionData);
         }
@@ -310,6 +353,40 @@ public class Sys {
         }
     }
 
+    /**
+     * Allows the user to change the status of their pending auctions.
+     * @param seller the logged in seller.
+     */
+    public static void verifyAuction(Seller seller){
+        int i=0;
+        while (i<3) {
+            i++;
+            System.out.println("Num|Item|Seller|Status");
+            ArrayList<Auction> relevantAuctions = new ArrayList<Auction>();
+            int j=0;
+            for (Auction auction : allAuctions){
+                if (auction.owner == seller && auction.status == Auction.Status.PENDING) {
+                    relevantAuctions.add(auction);
+                    System.out.printf("%d|%s|%s|£s\n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
+                    j++;
+                }
+            }
+            int choice = getAnswerInt("Enter the number of the auction you want to select: ", -1);
+            if (choice >= 0) {
+                try {
+                    relevantAuctions.get(choice).verify();
+                    return;
+                } catch (Exception exception) {
+                    System.out.println("Number is out of bounds.");
+                }
+            }
+        }
+        System.out.println("Nothing changed.");
+    }
+
+    /**
+     * Displays all auctions to the user.
+     */
     public static void viewAuctions() {
         int i=0;
         System.out.println("Num|Item|Seller|Highest bid");
@@ -323,6 +400,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Allows user to select an auction from allAuctions array.
+     * @return Auction selected by user.
+     */
     public static Auction selectAuction() {
         int i=0;
         while (i<3) {
@@ -341,6 +422,11 @@ public class Sys {
         return null;
     }
 
+    /**
+     * Finds the seller object for a given username.
+     * @param username of the seller in question.
+     * @return seller object with matching username
+     */
     public static Seller getSeller(String username){
         Seller loggedSeller = allSellers.get(0);
         for (Seller seller : allSellers){
@@ -351,6 +437,12 @@ public class Sys {
         return loggedSeller;
     }
 
+    /**
+     * Helper function to get input from user, with 3 attempts.
+     * @param question String containing question.
+     * @param defaultInt Default return value.
+     * @return either default or successful user input.
+     */
     public static int getAnswerInt(String question, int defaultInt){
         int i=0;
         while (i<3){
@@ -362,10 +454,17 @@ public class Sys {
             catch (Exception NumberFormatException){
                 System.out.println("Cannot parse number, try again.");
             }
+            i++;
         }
         return(defaultInt);
     }
 
+    /**
+     * Helper function to get input from user, with 3 attempts.
+     * @param question String containing question.
+     * @param defaultDouble Default return value.
+     * @return either default or successful user input.
+     */
     public static double getAnswerDouble(String question, double defaultDouble){
         int i=0;
         while (i<3){
@@ -377,6 +476,7 @@ public class Sys {
             catch (Exception NumberFormatException){
                 System.out.println("Cannot parse number, try again.");
             }
+            i++;
         }
         return(defaultDouble);
     }

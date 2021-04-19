@@ -4,16 +4,23 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Auction {
+    public enum Status {
+        OPEN,
+        PENDING,
+        CLOSED
+    }
+
     private double startPrice;
     private double reservePrice;
-    private LocalDate closeDate;
-    private char status;
+    public LocalDate closeDate;
 
     public Seller owner;
     public Item item;
     public ArrayList<Bid> bids = new ArrayList<Bid>();
+    public Status status;
 
     public Auction(Seller owner, Item item, double startPrice, double reservePrice, int timeLimit){
+        this.status = Status.PENDING;
         this.owner = owner;
         this.item = item;
         this.startPrice = startPrice;
@@ -39,16 +46,18 @@ public class Auction {
         }
     }
 
-    public static void verify() {
+    public void verify() {
+        this.status = Status.OPEN;
     }
 
-    public static void close() {
+    public void close() {
+        this.status = Status.CLOSED;
     }
 
     public static boolean isBlocked() {
         return true;
     }
 
-    public static void setBlocked() {
+    public void setBlocked() {
     }
 }
