@@ -107,7 +107,7 @@ public class Sys {
                         }
                         break;
                     case 'c':
-                        browseAuction();
+                        viewAuctions();
                         break;
                     case 'q':
                         scanner.close();
@@ -272,7 +272,7 @@ public class Sys {
         }
     }
 
-    public static Auction browseAuction() {
+    public static Auction selectAuction() {
         int i=0;
         while (i<3) {
             i++;
