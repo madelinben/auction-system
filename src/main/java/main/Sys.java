@@ -476,6 +476,25 @@ public class Sys {
         return null;
     }
 
+    public static void saveAuctions(){
+        int fails = 0;
+        for (Auction auction : allAuctions) {
+            ArrayList<String> auctionData = new ArrayList<String>();
+            auctionData.add(auction.item.description);
+            auctionData.add(auction.owner.getUsername());
+            auctionData.add(String.valueOf(auction.startPrice));
+            auctionData.add(String.valueOf(auction.reservePrice));
+            auctionData.add(auction.closeDate.toString());
+            auctionData.add(auction.status.toString());
+            try {
+                writeCSV("auction.csv", auctionData);
+            } catch (Exception exception) {
+                fails += 1;
+            }
+        }
+        System.out.printf("Auctions unable to be saved to file: %d", fails);
+    }
+
     /**
      * Prints wins and losses for buyer.
      * @param buyer

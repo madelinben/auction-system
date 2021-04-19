@@ -9,13 +9,13 @@ import java.util.Arrays;
 
 public class Auction {
     public double startPrice;
+    public double reservePrice;
     public enum Status {
         OPEN,
         PENDING,
         CLOSED,
         BLOCKED
     }
-    private double reservePrice;
     public LocalDate closeDate;
     public Seller owner;
     public Item item;
