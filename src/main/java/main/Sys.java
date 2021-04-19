@@ -82,6 +82,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Imports auctions from file and puts them into allAuctions array.
+     * @throws IOException
+     */
     public void importAuctions() throws IOException {
         String src = System.getProperty("user.dir") + "/src/main/resources/";
         File auctionCSV = new File(src + "auction.csv");
@@ -303,6 +307,10 @@ public class Sys {
         return;
     }
 
+    /**
+     * Allows the user to create an auction and add item information.
+     * @param seller the seller selling the item to be sold.
+     */
     public static void placeAuction(Seller seller) {
         System.out.println("Enter a description of the item: ");
         Item item = new Item();
@@ -331,6 +339,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Allows the user to change the status of their pending auctions.
+     * @param seller the logged in seller.
+     */
     public static void verifyAuction(Seller seller){
         int i=0;
         while (i<3) {
@@ -358,6 +370,9 @@ public class Sys {
         System.out.println("Nothing changed.");
     }
 
+    /**
+     * Displays all auctions to the user.
+     */
     public static void viewAuctions() {
         int i=0;
         System.out.println("Num|Item|Seller|Highest bid");
@@ -371,6 +386,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Allows user to select an auction from allAuctions array.
+     * @return Auction selected by user.
+     */
     public static Auction selectAuction() {
         int i=0;
         while (i<3) {
@@ -389,6 +408,11 @@ public class Sys {
         return null;
     }
 
+    /**
+     * Finds the seller object for a given username.
+     * @param username of the seller in question.
+     * @return seller object with matching username
+     */
     public static Seller getSeller(String username){
         Seller loggedSeller = allSellers.get(0);
         for (Seller seller : allSellers){
@@ -399,6 +423,12 @@ public class Sys {
         return loggedSeller;
     }
 
+    /**
+     * Helper function to get input from user, with 3 attempts.
+     * @param question String containing question.
+     * @param defaultInt Default return value.
+     * @return either default or successful user input.
+     */
     public static int getAnswerInt(String question, int defaultInt){
         int i=0;
         while (i<3){
@@ -415,6 +445,12 @@ public class Sys {
         return(defaultInt);
     }
 
+    /**
+     * Helper function to get input from user, with 3 attempts.
+     * @param question String containing question.
+     * @param defaultInt Default return value.
+     * @return either default or successful user input.
+     */
     public static double getAnswerDouble(String question, double defaultDouble){
         int i=0;
         while (i<3){
