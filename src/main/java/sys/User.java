@@ -9,7 +9,9 @@ public abstract class User {
         this.password = password;
     }
 
-    public static boolean checkPassword() {
-        return true;
+    public String getUsername() { return this.username; }
+
+    public boolean checkPassword(String password) {
+        if (password.equals(this.password)) { return true; } else { return false; }
     }
 }

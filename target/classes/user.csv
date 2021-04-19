@@ -1,0 +1,8 @@
+Name,Password,isSeller,Blocked
+Ben,password123,false,false
+Isaac,password,true,false
+Sorren,_Sorren,true,false
+Glyn,_Glyn,true,false
+Mark,_Mark,false,false
+Kirsty,_Kirsty,false,false
+Andy,_Andy,false,false

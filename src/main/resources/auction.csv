@@ -1,0 +1,7 @@
+Item,Seller,StartPrice,ReservePrice,CloseDate,Status
+tanto,human1,450,50.55,2021-04-20,OPEN
+item33,Isaac,45.0,34.5,2021-04-24,PENDING
+item4,Isaac,4.0,5.0,2021-04-25,CLOSED
+item5,Isaac,65.0,54.0,2021-04-23,PENDING
+item7,Isaac,45.0,65.0,2021-04-23,CLOSED
+item8,Isaac,45.0,56.0,2021-04-25,CLOSED
