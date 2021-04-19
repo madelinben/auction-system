@@ -186,6 +186,7 @@ public class Sys {
         boolean terminate = false;
         while (!terminate) {
             updateAuctionTimers();
+            //saveAuctions(); //this would be the call to save auctions.
             String header = "\nMenu:\nA - Create Account\nB - ";
             if (accountSession == null) {header += "Sign In";} else {header += "Sign Out";}
             System.out.print(header + "\nC - Create Auction\nD - Browse Auctions\nV - Verify Auction\nW - Check Wins\nQ - Quit\n\nInput: ");
@@ -476,24 +477,46 @@ public class Sys {
         return null;
     }
 
-    public static void saveAuctions(){
+    /* Idea here is to *update* the contents of the auction file in-place.
+    public static void saveAuctions() throws IOException{
+        CSVParser parser = readCSV("auction.csv");
+        ArrayList<String> savedItems = new ArrayList<>();
+        for (CSVRecord record : parser) {
+            if (record.isSet("Item")) {
+                if (!record.get("Item").isEmpty()) {
+                    savedItems.add(record.get("Item"));
+                }
+            }
+        }
         int fails = 0;
+        int saves = 0;
         for (Auction auction : allAuctions) {
-            ArrayList<String> auctionData = new ArrayList<String>();
-            auctionData.add(auction.item.description);
-            auctionData.add(auction.owner.getUsername());
-            auctionData.add(String.valueOf(auction.startPrice));
-            auctionData.add(String.valueOf(auction.reservePrice));
-            auctionData.add(auction.closeDate.toString());
-            auctionData.add(auction.status.toString());
-            try {
-                writeCSV("auction.csv", auctionData);
-            } catch (Exception exception) {
-                fails += 1;
+            boolean found = false;
+            for (String item : savedItems) {
+                if (auction.item.description.equals(item)){
+                    found = true;
+                }
+            }
+            if (!found) {
+                ArrayList<String> auctionData = new ArrayList<String>();
+                auctionData.add(auction.item.description);
+                auctionData.add(auction.owner.getUsername());
+                auctionData.add(String.valueOf(auction.startPrice));
+                auctionData.add(String.valueOf(auction.reservePrice));
+                auctionData.add(auction.closeDate.toString());
+                auctionData.add(auction.status.toString());
+                try {
+                    writeCSV("auction.csv", auctionData);
+                    saves++;
+                } catch (Exception exception) {
+                    fails++;
+                }
             }
         }
         System.out.printf("Auctions unable to be saved to file: %d", fails);
+        System.out.printf("Auctions saved to file: %d", saves);
     }
+     */
 
     /**
      * Prints wins and losses for buyer.
