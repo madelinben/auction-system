@@ -89,7 +89,6 @@ public class Sys {
                         auction.allBids.add(new Bid(bidAmount, buyerObj, bidDate));
                     }
                 }
-//                allAuctions.forEach(a -> a.item.description.equals(finalAuctionName) ? a.allBids.add(new Bid(finalBidAmount, finalBuyerObj)) : null);
             }
         }
     }
