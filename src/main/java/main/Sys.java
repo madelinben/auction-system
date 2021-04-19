@@ -90,8 +90,10 @@ public class Sys {
         for (CSVRecord record : parser) {
             String sellerName = null;
             Item item = new Item();
-            Double startPrice = null, reservePrice = null;
+            Double startPrice = null;
+            Double reservePrice = null;
             Integer timeLimit = null;
+            String status = null;
             if (record.isSet("Item")) {
                 if (!record.get("Item").isEmpty()) {
                     item.description = record.get("Item");
@@ -118,8 +120,15 @@ public class Sys {
                     timeLimit = (int)ChronoUnit.DAYS.between(LocalDate.now(), closeDate);
                 }
             }
-            if (sellerName != null && startPrice != null && reservePrice != null && timeLimit != null) {
-                allAuctions.add(new Auction(getSeller(sellerName), item, startPrice, reservePrice, timeLimit));
+            if (record.isSet("Status")) {
+                if (!record.get("Status").isEmpty()) {
+                    status = record.get("Status");
+                }
+            }
+            if (sellerName != null && startPrice != null && reservePrice != null && timeLimit != null && status != null) {
+                Auction newAuction = new Auction(getSeller(sellerName), item, startPrice, reservePrice, timeLimit);
+                newAuction.status = Auction.Status.valueOf(status);
+                allAuctions.add(newAuction);
             }
         }
     }
@@ -258,6 +267,7 @@ public class Sys {
                 if (account.getUsername().equals(inputUser)) {
                     if (account.checkPassword(inputPwd)) {
                         valid = true;
+                        break;
                     } else {
                         System.out.println("ERROR! Invalid credentials.");
                     }
@@ -268,6 +278,7 @@ public class Sys {
                     if (account.getUsername().equals(inputUser)) {
                         if (account.checkPassword(inputPwd)) {
                             valid = true;
+                            break;
                         } else {
                             System.out.println("ERROR! Invalid credentials.");
                         }
@@ -293,8 +304,9 @@ public class Sys {
         double reservePrice = getAnswerDouble("Enter reserve price in £(x.xx): ", -1);
         if (reservePrice < 0) {System.out.println("cancelling auction creation."); return;}
         int daysTillClose = getAnswerInt("In how many days will the auction close (0-7 incl.): ", -1);
-        if (daysTillClose < 0) {System.out.println("cancelling auction creation."); return;}
-        allAuctions.add(new Auction(seller, item, startPrice, reservePrice, daysTillClose));
+        if (daysTillClose < 0 || daysTillClose > 7) {System.out.println("cancelling auction creation."); return;}
+        Auction newAuction = new Auction(seller, item, startPrice, reservePrice, daysTillClose);
+        allAuctions.add(newAuction);
 
         ArrayList<String> auctionData = new ArrayList<String>();
         auctionData.add(item.description);
@@ -302,6 +314,7 @@ public class Sys {
         auctionData.add(String.valueOf(startPrice));
         auctionData.add(String.valueOf(reservePrice));
         auctionData.add(LocalDate.now().plusDays(daysTillClose).toString());
+        auctionData.add(newAuction.status.name());
         try {
             writeCSV("auction.csv", auctionData);
         }
@@ -362,6 +375,7 @@ public class Sys {
             catch (Exception NumberFormatException){
                 System.out.println("Cannot parse number, try again.");
             }
+            i++;
         }
         return(defaultInt);
     }
@@ -377,6 +391,7 @@ public class Sys {
             catch (Exception NumberFormatException){
                 System.out.println("Cannot parse number, try again.");
             }
+            i++;
         }
         return(defaultDouble);
     }
