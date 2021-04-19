@@ -4,16 +4,23 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Auction {
+    public enum Status {
+        OPEN,
+        PENDING,
+        CLOSED
+    }
+
     private double startPrice;
     private double reservePrice;
     private LocalDate closeDate;
-    private char status;
 
     public Seller owner;
     public Item item;
     public ArrayList<Bid> bids = new ArrayList<Bid>();
+    public Status status;
 
     public Auction(Seller owner, Item item, double startPrice, double reservePrice, int timeLimit){
+        this.status = Status.PENDING;
         this.owner = owner;
         this.item = item;
         this.startPrice = startPrice;
