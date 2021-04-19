@@ -186,9 +186,10 @@ public class Sys {
         boolean terminate = false;
         while (!terminate) {
             updateAuctionTimers();
+            //saveAuctions(); //this would be the call to save auctions.
             String header = "\nMenu:\nA - Create Account\nB - ";
             if (accountSession == null) {header += "Sign In";} else {header += "Sign Out";}
-            System.out.print(header + "\nC - Create Auction\nD - Browse Auctions\nV - Verify Auction\nQ - Quit\n\nInput: ");
+            System.out.print(header + "\nC - Create Auction\nD - Browse Auctions\nV - Verify Auction\nW - Check Wins\nQ - Quit\n\nInput: ");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -217,6 +218,14 @@ public class Sys {
                     case 'v':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
                             verifyAuction(getSeller(accountSession));
+                        }
+                        else{
+                            System.out.println("Not logged in.");
+                        }
+                        break;
+                    case 'w':
+                        if ((accountSession != null) && (!allBuyers.isEmpty())) {
+                            checkWins(getBuyer(accountSession));
                         }
                         else{
                             System.out.println("Not logged in.");
@@ -359,7 +368,7 @@ public class Sys {
         auctionData.add(String.valueOf(startPrice));
         auctionData.add(String.valueOf(reservePrice));
         auctionData.add(LocalDate.now().plusDays(daysTillClose).toString());
-        auctionData.add(newAuction.status.name());
+        auctionData.add(newAuction.status.toString());
         try {
             writeCSV("auction.csv", auctionData);
         }
@@ -376,13 +385,15 @@ public class Sys {
         int i=0;
         while (i<3) {
             i++;
-            System.out.println("Num|Item|Seller|Status");
+            System.out.format("%n| %-5s | %-12s | %-12s | %-11s |%n|=======|==============|==============|=============|%n", "Index", "Item", "Seller", "Status");
+            //System.out.println("Num|Item|Seller|Status");
             ArrayList<Auction> relevantAuctions = new ArrayList<Auction>();
             int j=0;
             for (Auction auction : allAuctions){
                 if (auction.owner == seller && auction.status == Auction.Status.PENDING) {
                     relevantAuctions.add(auction);
-                    System.out.printf("%d|%s|%s|£s\n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
+                    System.out.format("| %-5d | %-12s | %-12s | %-11s |%n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
+                    //System.out.printf("%d|%s|%s|%s\n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
                     j++;
                 }
             }
@@ -466,6 +477,62 @@ public class Sys {
         return null;
     }
 
+    /* Idea here is to *update* the contents of the auction file in-place.
+    public static void saveAuctions() throws IOException{
+        CSVParser parser = readCSV("auction.csv");
+        ArrayList<String> savedItems = new ArrayList<>();
+        for (CSVRecord record : parser) {
+            if (record.isSet("Item")) {
+                if (!record.get("Item").isEmpty()) {
+                    savedItems.add(record.get("Item"));
+                }
+            }
+        }
+        int fails = 0;
+        int saves = 0;
+        for (Auction auction : allAuctions) {
+            boolean found = false;
+            for (String item : savedItems) {
+                if (auction.item.description.equals(item)){
+                    found = true;
+                }
+            }
+            if (!found) {
+                ArrayList<String> auctionData = new ArrayList<String>();
+                auctionData.add(auction.item.description);
+                auctionData.add(auction.owner.getUsername());
+                auctionData.add(String.valueOf(auction.startPrice));
+                auctionData.add(String.valueOf(auction.reservePrice));
+                auctionData.add(auction.closeDate.toString());
+                auctionData.add(auction.status.toString());
+                try {
+                    writeCSV("auction.csv", auctionData);
+                    saves++;
+                } catch (Exception exception) {
+                    fails++;
+                }
+            }
+        }
+        System.out.printf("Auctions unable to be saved to file: %d", fails);
+        System.out.printf("Auctions saved to file: %d", saves);
+    }
+     */
+
+    /**
+     * Prints wins and losses for buyer.
+     * @param buyer
+     */
+    public static void checkWins(Buyer buyer){
+        System.out.println("Wins:");
+        for (Auction win : buyer.wins){
+            System.out.println(win.item.description);
+        }
+        System.out.println("Losses:");
+        for (Auction loss : buyer.losses){
+            System.out.println(loss.item.description);
+        }
+    }
+
     /**
      * Finds the seller object for a given username.
      * @param username of the seller in question.
@@ -479,6 +546,21 @@ public class Sys {
             }
         }
         return loggedSeller;
+    }
+
+    /**
+     * Finds the buyer object for a given username.
+     * @param username of the buyer in question.
+     * @return buyer object with matching username
+     */
+    public static Buyer getBuyer(String username){
+        Buyer loggedBuyer = allBuyers.get(0);
+        for (Buyer buyer : allBuyers){
+            if (username.equals(buyer.getUsername())){
+                return buyer;
+            }
+        }
+        return loggedBuyer;
     }
 
     /**
