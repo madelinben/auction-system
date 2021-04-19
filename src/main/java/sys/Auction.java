@@ -41,7 +41,7 @@ public class Auction {
                     valid = verify(price);
                     if (valid) {
                         System.out.printf("Successful! %s your Bid has been placed.", account.getUsername());
-                        allBids.add(new Bid(price, account));
+                        allBids.add(new Bid(price, account, LocalDate.now()));
                         ArrayList<String> csvRow = new ArrayList<String>(Arrays.asList(this.item.description, account.getUsername(), Double.toString(price), LocalDate.now().toString()));
                         Sys.writeCSV("bid.csv", csvRow);
                         terminate = true;

@@ -87,7 +87,7 @@ public class Sys {
             if (auctionName!=null && buyerObj!=null && bidAmount!=-1 && bidDate!=null) {
                 for (Auction auction : allAuctions) {
                     if (auction.item.description.equals(auctionName)) {
-                        auction.allBids.add(new Bid(bidAmount, buyerObj));
+                        auction.allBids.add(new Bid(bidAmount, buyerObj, bidDate));
                     }
                 }
 //                allAuctions.forEach(a -> a.item.description.equals(finalAuctionName) ? a.allBids.add(new Bid(finalBidAmount, finalBuyerObj)) : null);
