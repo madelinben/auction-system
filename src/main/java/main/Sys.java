@@ -1,6 +1,5 @@
 package main;
 
-import jdk.vm.ci.meta.Local;
 import sys.*;
 
 import java.io.*;
@@ -358,14 +357,14 @@ public class Sys {
     }
 
     public static void viewAuctions() throws IOException {
-        System.out.format("| %-5s | %-12s | %-12s | %-11s | %-17s |%n|=======|==============|==============|=============|===================|%n", "Index", "Item", "Seller", "Highest Bid", "Bidding Increment");
+        System.out.format("| %-5s | %-12s | %-12s | %-11s | %-11s | %-17s |%n|=======|==============|==============|=============|=============|===================|%n", "Index", "Item", "Seller", "Highest Bid", "Start Price", "Bidding Increment");
         for (int i=0; i<allAuctions.size(); i++) {
             Auction auction = allAuctions.get(i);
             Bid highestBid = auction.getHighestBid();
             double highestAmount;
             if (highestBid == null) { highestAmount = 0; }
             else {highestAmount = highestBid.amount;}
-            System.out.format("| %-5d | %-12s | %-12s | £%-10.2f | £%-7.2f-£%-7.2f |%n", i+1, auction.item.description, auction.owner.getUsername(), highestAmount, auction.getLowerBidInc(), auction.getUpperBidInc());
+            System.out.format("| %-5d | %-12s | %-12s | £%-10.2f | £%-10.2f | £%-7.2f-£%-7.2f |%n", i+1, auction.item.description, auction.owner.getUsername(), highestAmount, auction.startPrice, auction.getLowerBidInc(), auction.getUpperBidInc());
         }
 
         if (accountSession!=null) {
@@ -374,10 +373,26 @@ public class Sys {
                 if (user.getUsername().equals(accountSession)) { account = user; }
             }
             if (account!=null) {
-                Auction selected = selectAuction();
-                if (selected!=null) {
-                    selected.placeBid(account);
+                int count = 0;
+                boolean terminate = false;
+                while (count<3 && !terminate) {
+                    System.out.print("Would you like to place a bid [Y/N]?");
+                    String userInput = new Scanner(System.in).nextLine().trim().toLowerCase();
+                    if (userInput.equals("y")) {
+                        Auction selected = selectAuction();
+                        if (selected != null) {
+                            selected.placeBid(account);
+                            terminate = true;
+                        }
+                    } else if (userInput.equals("n")) {
+                        System.out.println("Returning to Main Menu.");
+                        terminate = true;
+                    } else {
+                        System.out.println("ERROR! Invalid value provided.");
+                        count++;
+                    }
                 }
+
             } else {
                 System.out.println("Must be signed into a Buyer Account in order to Place a Bid.");
             }

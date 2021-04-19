@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Auction {
-    private double startPrice;
+    public double startPrice;
     private double reservePrice;
     private LocalDate closeDate;
     private char status;
@@ -31,33 +31,19 @@ public class Auction {
         int count = 0;
         boolean terminate = false;
         while (count<3 && !terminate) {
-            System.out.print("Would you like to place a bid [Y/N]?");
-            String userInput = new Scanner(System.in).nextLine().trim().toLowerCase();
-            if (userInput.equals("y")) {
-                count = 0;
-                boolean valid = false;
-                while (count<3 && !valid) {
-                    double price = Sys.getAnswerDouble("Enter Bid Amount: ", -1);
-                    valid = verify(price);
-                    if (valid) {
-                        System.out.printf("Successful! %s your Bid has been placed.", account.getUsername());
-                        allBids.add(new Bid(price, account, LocalDate.now()));
-                        ArrayList<String> csvRow = new ArrayList<String>(Arrays.asList(this.item.description, account.getUsername(), Double.toString(price), LocalDate.now().toString()));
-                        Sys.writeCSV("bid.csv", csvRow);
-                        terminate = true;
-                    } else {
-                        System.out.println("Error placing your Bid! System enforces an upper/lower bidding increment of 20% and 10% for the Item Starting Price.");
-                    }
-                }
-            } else if (userInput.equals("n")) {
-                System.out.println("Returning to Main Menu.");
+            double price = Sys.getAnswerDouble("Enter Bid Amount: ", -1);
+            boolean valid = verify(price);
+            if (valid) {
+                System.out.format("Successful! %s your Bid has been placed.", account.getUsername());
+                allBids.add(new Bid(price, account, LocalDate.now()));
+                ArrayList<String> csvRow = new ArrayList<String>(Arrays.asList(this.item.description, account.getUsername(), Double.toString(price), LocalDate.now().toString()));
+                Sys.writeCSV("bid.csv", csvRow);
                 terminate = true;
             } else {
-                System.out.println("ERROR! Invalid value provided.");
                 count++;
+                System.out.println("Error placing your Bid! System enforces an upper/lower bidding increment of 20% and 10% for the Item Starting Price.");
             }
         }
-        return;
     }
 
     public Bid getHighestBid() {
@@ -76,8 +62,8 @@ public class Auction {
     }
 
     public boolean verify(double price) {
-        double upper = price + 2*(this.startPrice/10);//1.2;
-        double lower = price + this.startPrice/10;//0.9;
+        double upper = this.startPrice + 2*(this.startPrice/10);//1.2;
+        double lower = this.startPrice + this.startPrice/10;//0.9;
         if ((price >= lower) && (price <= upper)) {
             return true;
         } else {
