@@ -1,5 +1,6 @@
 package main;
 
+import jdk.vm.ci.meta.Local;
 import sys.*;
 
 import java.io.*;
@@ -22,6 +23,7 @@ public class Sys {
     public void entry() throws java.lang.Exception {
         importUsers();
         importAuctions();
+        importBids();
         displayMenu();
     }
 
@@ -45,6 +47,51 @@ public class Sys {
             csvPrinter.close();
         } catch (Exception e) {
             System.out.println("ERROR! Parsing CSV Record.");
+        }
+    }
+
+    public void importBids() throws IOException {
+        CSVParser parser = readCSV("bid.csv");
+        for (CSVRecord record : parser) {
+            String auctionName = null, buyerString = null;
+            double bidAmount = -1;
+            LocalDate bidDate = null;
+            if (record.isSet("Auction")) {
+                if (!record.get("Auction").isEmpty()) {
+                    auctionName = record.get("Auction");
+                }
+            }
+            if (record.isSet("Buyer")) {
+                if (!record.get("Buyer").isEmpty()) {
+                    buyerString = record.get("Buyer");
+                }
+            }
+            Buyer buyerObj = null;
+            if (buyerString!=null) {
+                for (Buyer user : allBuyers) {
+                    if (user.getUsername().equals(buyerString)) {
+                        buyerObj = user;
+                    }
+                }
+            }
+            if (record.isSet("Price")) {
+                if (!record.get("Price").isEmpty()) {
+                    bidAmount = Double.parseDouble(record.get("Price"));
+                }
+            }
+            if (record.isSet("Date")) {
+                if (!record.get("Date").isEmpty()) {
+                    bidDate = LocalDate.parse(record.get("Date"));
+                }
+            }
+            if (auctionName!=null && buyerObj!=null && bidAmount!=-1 && bidDate!=null) {
+                for (Auction auction : allAuctions) {
+                    if (auction.item.description.equals(auctionName)) {
+                        auction.allBids.add(new Bid(bidAmount, buyerObj));
+                    }
+                }
+//                allAuctions.forEach(a -> a.item.description.equals(finalAuctionName) ? a.allBids.add(new Bid(finalBidAmount, finalBuyerObj)) : null);
+            }
         }
     }
 
