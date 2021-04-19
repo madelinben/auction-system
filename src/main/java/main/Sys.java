@@ -19,6 +19,9 @@ public class Sys {
     private static ArrayList<Seller> allSellers = new ArrayList<Seller>();
     private static ArrayList<Auction> allAuctions = new ArrayList<Auction>();
 
+    /**
+     * Main project Structure and Entry Point.
+     */
     public void entry() throws java.lang.Exception {
         importUsers();
         importAuctions();
@@ -26,6 +29,11 @@ public class Sys {
         displayMenu();
     }
 
+    /**
+     * Service method that formats CSV resource to obtain contained row data.
+     * * @return CSV Parser Object to increment through collected records.
+     * @throws IOException
+     */
     public static CSVParser readCSV(String src) throws IOException {
         String path = System.getProperty("user.dir") + "/src/main/resources/";
         File modelCSV = new File(path + src);
@@ -34,6 +42,10 @@ public class Sys {
         return parser;
     }
 
+    /**
+     * Service method that formats String array of data as a CSV row.
+     * @throws IOException
+     */
     public static void writeCSV(String src, ArrayList<String> csvData) throws IOException {
         try {
             String path = System.getProperty("user.dir") + "/src/main/resources/";
@@ -49,6 +61,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Imports Bids from resource file and implements them into the relevant Auction Object in allAuctions array.
+     * @throws IOException
+     */
     public void importBids() throws IOException {
         CSVParser parser = readCSV("bid.csv");
         for (CSVRecord record : parser) {
@@ -93,6 +109,10 @@ public class Sys {
         }
     }
 
+    /**
+     * Imports Users from resource file and puts them into allBuyers or allSellers array based on Account Type.
+     * @throws IOException
+     */
     public void importUsers() throws IOException {
         String src = System.getProperty("user.dir") + "/src/main/resources/";
         File accountCSV = new File(src + "user.csv");
@@ -128,7 +148,7 @@ public class Sys {
     }
 
     /**
-     * Imports auctions from file and puts them into allAuctions array.
+     * Imports Auctions from resource file and puts them into allAuctions array.
      * @throws IOException
      */
     public void importAuctions() throws IOException {
@@ -182,6 +202,9 @@ public class Sys {
         }
     }
 
+    /**
+     * Displays a formatted Menu to navigate project features.
+     */
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
@@ -197,6 +220,7 @@ public class Sys {
                 switch (input[0]) {
                     case 'a':
                         accountSetup();
+                        break;
                     case 'b':
                         if (accountSession==null) {
                             accountAuth();
@@ -214,6 +238,7 @@ public class Sys {
                         break;
                     case 'd':
                         viewAuctions();
+                        break;
                     case 'v':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
                             verifyAuction(getSeller(accountSession));
@@ -235,55 +260,75 @@ public class Sys {
         System.exit(0);
     }
 
+    /**
+     * Formats an User Object based on the Account Type.
+     * @throws IOException
+     */
     public static void accountSetup() throws IOException {
-        boolean valid = false;
-        while (!valid) {
+        boolean terminate = false;
+        int count = 0;
+        while (count<3 && !terminate) {
             System.out.print("Account Type [Buyer(B)/Seller(S)]: ");
             String inputType = scanner.nextLine().trim().toLowerCase();
             if (inputType.equals("b") || inputType.equals("s")) {
-                String inputUser, inputPwd;
-                while (true) {
+                String inputUser = null, inputPwd = null;
+                boolean valid = false;
+                while (!valid) {
                     System.out.print("Enter Username: ");
                     inputUser = scanner.nextLine();
                     if (inputUser.matches("^[-\\\\w.]+$")) {
+                        count++;
                         System.out.println("ERROR! Username should not include any special characters.");
                     } else {
-                        break;
+                        valid = true;
                     }
                 }
-                while (true) {
+                valid = false;
+                count = 0;
+                while (!valid) {
                     System.out.print("Enter Password: ");
                     inputPwd = scanner.nextLine();
                     if (inputPwd.length()<8) {
+                        count++;
                         System.out.println("ERROR! Password must be 8 digits or longer.");
                     } else {
-                        break;
+                        valid = true;
                     }
                 }
-                FileWriter csvWriter = new FileWriter(System.getProperty("user.dir") + "/src/main/resources/user.csv", true);
-                CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator("\n");
-                CSVPrinter csvPrinter = new CSVPrinter(csvWriter, csvFormat);
-                if (inputType.equals("s")) {
-                    csvPrinter.printRecord(inputUser, inputPwd, true, false);
-                    allSellers.add(new Seller(inputUser, inputPwd, false));
-                } else {
-                    csvPrinter.printRecord(inputUser, inputPwd, false, false);
-                    allBuyers.add(new Buyer(inputUser, inputPwd));
+                try {
+                    FileWriter csvWriter = new FileWriter(System.getProperty("user.dir") + "/src/main/resources/user.csv", true);
+                    CSVFormat csvFormat = CSVFormat.DEFAULT.withRecordSeparator("\n");
+                    CSVPrinter csvPrinter = new CSVPrinter(csvWriter, csvFormat);
+                    if (inputType.equals("s")) {
+                        csvPrinter.printRecord(inputUser, inputPwd, true, false);
+                        allSellers.add(new Seller(inputUser, inputPwd, false));
+                        System.out.println("Successfully Created New Seller Account.");
+                    } else {
+                        csvPrinter.printRecord(inputUser, inputPwd, false, false);
+                        allBuyers.add(new Buyer(inputUser, inputPwd));
+                        System.out.println("Successfully Created New Buyer Account.");
+                    }
+                    csvWriter.flush();
+                    csvWriter.close();
+                    csvPrinter.close();
+                } catch (IOException e) {
+                    System.out.println("ERROR! Parsing data to CSV resource.");
+
                 }
-                csvWriter.flush();
-                csvWriter.close();
-                csvPrinter.close();
-                valid = true;
+                terminate = true;
             } else {
                 System.out.println("ERROR! Please select a valid Account Type.");
             }
         }
-        return;
     }
 
+    /**
+     * Authenticates Account Credentials and sets ID as Global Session.
+     */
     public static void accountAuth() {
         int count = 0;
         boolean terminate = false;
+        boolean found = false;
         while (count<3 && !terminate) {
             count++;
             System.out.print("Enter Username: ");
@@ -293,34 +338,40 @@ public class Sys {
             boolean valid = false;
             for (Buyer account : allBuyers) {
                 if (account.getUsername().equals(inputUser)) {
+                    found = true;
                     if (account.checkPassword(inputPwd)) {
                         valid = true;
                         break;
                     } else {
                         System.out.println("ERROR! Invalid credentials.");
+                        count++;
                     }
                 }
             }
-            if (!valid) {
+            if (!found) {
+                count = 0;
                 for (Seller account : allSellers) {
                     if (account.getUsername().equals(inputUser)) {
+                        found = true;
                         if (account.checkPassword(inputPwd)) {
                             valid = true;
                             break;
                         } else {
                             System.out.println("ERROR! Invalid credentials.");
+                            count++;
                         }
-                    } else {
-                        System.out.println("ERROR! User Account does not exist.");
                     }
                 }
             }
+            if (!found) {
+                System.out.println("ERROR! User Account does not exist.");
+            }
             if (valid) {
                 accountSession = inputUser;
-                return;
+                System.out.println("Successfully Signed into Account.");
             }
+            terminate = true;
         }
-        return;
     }
 
     /**
@@ -382,7 +433,7 @@ public class Sys {
             for (Auction auction : allAuctions){
                 if (auction.owner == seller && auction.status == Auction.Status.PENDING) {
                     relevantAuctions.add(auction);
-                    System.out.printf("%d|%s|%s|£s\n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
+                    System.out.printf("%d|%s|%s|%s\n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
                     j++;
                 }
             }

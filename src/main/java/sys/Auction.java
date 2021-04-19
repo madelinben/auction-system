@@ -31,6 +31,11 @@ public class Auction {
         this.closeDate = LocalDate.now().plusDays(timeLimit);
     }
 
+    /**
+     * Method stores formatted Bid for the selected Auction Object.
+     * @param account Buyer User Object to identify and map Bid Owner.
+     * @throws IOException
+     */
     public void placeBid(Buyer account) throws IOException {
         int count = 0;
         boolean terminate = false;
@@ -50,6 +55,10 @@ public class Auction {
         }
     }
 
+    /**
+     * Method identifies the highest bid made on the selected Auction.
+     * @return Highest Bid Object.
+     */
     public Bid getHighestBid() {
         if (!this.allBids.isEmpty()) {
             Bid highestBid = this.allBids.get(0);
@@ -65,9 +74,14 @@ public class Auction {
         }
     }
 
+    /**
+     * Method verifies if the new Bid Amount made is a valid bid increment.
+     * @param price Bid Amount.
+     * @return Boolean representing the result.
+     */
     public boolean verifyIncrement(double price) {
-        double upper = this.startPrice + 2*(this.startPrice/10);//1.2;
-        double lower = this.startPrice + this.startPrice/10;//0.9;
+        double upper = this.startPrice + 2*(this.startPrice/10);
+        double lower = this.startPrice + this.startPrice/10;
         if ((price >= lower) && (price <= upper)) {
             return true;
         } else {
