@@ -46,16 +46,18 @@ public class Auction {
         }
     }
 
-    public static void verify() {
+    public void verify() {
+        this.status = Status.OPEN;
     }
 
-    public static void close() {
+    public void close() {
+        this.status = Status.CLOSED;
     }
 
     public static boolean isBlocked() {
         return true;
     }
 
-    public static void setBlocked() {
+    public void setBlocked() {
     }
 }

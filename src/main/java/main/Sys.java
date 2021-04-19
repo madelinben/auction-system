@@ -136,7 +136,7 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nQ - Quit");
+            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nV - Verify Auction\nQ - Quit");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -152,6 +152,14 @@ public class Sys {
                     case 'c':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
                             placeAuction(getSeller(accountSession));
+                        }
+                        else{
+                            System.out.println("Not logged in.");
+                        }
+                        break;
+                    case 'v':
+                        if ((accountSession != null) && (!allSellers.isEmpty())) {
+                            verifyAuction(getSeller(accountSession));
                         }
                         else{
                             System.out.println("Not logged in.");
@@ -321,6 +329,33 @@ public class Sys {
         catch (Exception exception){
             System.out.println("Couldn't write auction to file.");
         }
+    }
+
+    public static void verifyAuction(Seller seller){
+        int i=0;
+        while (i<3) {
+            i++;
+            System.out.println("Num|Item|Seller|Status");
+            ArrayList<Auction> relevantAuctions = new ArrayList<Auction>();
+            int j=0;
+            for (Auction auction : allAuctions){
+                if (auction.owner == seller && auction.status == Auction.Status.PENDING) {
+                    relevantAuctions.add(auction);
+                    System.out.printf("%d|%s|%s|£s\n", j, auction.item.description, auction.owner.getUsername(), auction.status.toString());
+                    j++;
+                }
+            }
+            int choice = getAnswerInt("Enter the number of the auction you want to select: ", -1);
+            if (choice >= 0) {
+                try {
+                    relevantAuctions.get(choice).status = Auction.Status.OPEN;
+                    return;
+                } catch (Exception exception) {
+                    System.out.println("Number is out of bounds.");
+                }
+            }
+        }
+        System.out.println("Nothing changed.");
     }
 
     public static void viewAuctions() {
