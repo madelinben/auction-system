@@ -140,6 +140,7 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
+            updateAuctionTimers();
             System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nV - Verify Auction\nQ - Quit");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
@@ -308,6 +309,19 @@ public class Sys {
     }
 
     /**
+     * Updates the timers for auctions, closes them when necessary.
+     */
+    public static void updateAuctionTimers(){
+        for (Auction auction : allAuctions){
+            if (auction.status == Auction.Status.OPEN){
+                if (auction.closeDate.isBefore(LocalDate.now())){
+                    auction.close();
+                }
+            }
+        }
+    }
+
+    /**
      * Allows the user to create an auction and add item information.
      * @param seller the seller selling the item to be sold.
      */
@@ -360,7 +374,7 @@ public class Sys {
             int choice = getAnswerInt("Enter the number of the auction you want to select: ", -1);
             if (choice >= 0) {
                 try {
-                    relevantAuctions.get(choice).status = Auction.Status.OPEN;
+                    relevantAuctions.get(choice).verify();
                     return;
                 } catch (Exception exception) {
                     System.out.println("Number is out of bounds.");
@@ -448,7 +462,7 @@ public class Sys {
     /**
      * Helper function to get input from user, with 3 attempts.
      * @param question String containing question.
-     * @param defaultInt Default return value.
+     * @param defaultDouble Default return value.
      * @return either default or successful user input.
      */
     public static double getAnswerDouble(String question, double defaultDouble){

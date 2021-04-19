@@ -12,7 +12,7 @@ public class Auction {
 
     private double startPrice;
     private double reservePrice;
-    private LocalDate closeDate;
+    public LocalDate closeDate;
 
     public Seller owner;
     public Item item;
