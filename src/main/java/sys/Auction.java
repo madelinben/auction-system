@@ -11,15 +11,20 @@ import java.util.Scanner;
 
 public class Auction {
     public double startPrice;
+    public enum Status {
+        OPEN,
+        PENDING,
+        CLOSED
+    }
     private double reservePrice;
-    private LocalDate closeDate;
-    private char status;
-
+    public LocalDate closeDate;
     public Seller owner;
     public Item item;
     public ArrayList<Bid> allBids = new ArrayList<Bid>();
+    public Status status;
 
     public Auction(Seller owner, Item item, double startPrice, double reservePrice, int timeLimit){
+        this.status = Status.PENDING;
         this.owner = owner;
         this.item = item;
         this.startPrice = startPrice;
@@ -32,7 +37,7 @@ public class Auction {
         boolean terminate = false;
         while (count<3 && !terminate) {
             double price = Sys.getAnswerDouble("Enter Bid Amount: ", -1);
-            boolean valid = verify(price);
+            boolean valid = verifyIncrement(price);
             if (valid) {
                 System.out.format("Successful! %s your Bid has been placed.", account.getUsername());
                 allBids.add(new Bid(price, account, LocalDate.now()));
@@ -61,7 +66,7 @@ public class Auction {
         }
     }
 
-    public boolean verify(double price) {
+    public boolean verifyIncrement(double price) {
         double upper = this.startPrice + 2*(this.startPrice/10);//1.2;
         double lower = this.startPrice + this.startPrice/10;//0.9;
         if ((price >= lower) && (price <= upper)) {
@@ -74,13 +79,18 @@ public class Auction {
     public double getLowerBidInc() { return this.startPrice/10; }
     public double getUpperBidInc() { return 2*(this.startPrice/10); }
 
-    public static void close() {
+    public void verifyStatus() {
+        this.status = Status.OPEN;
+    }
+
+    public void close() {
+        this.status = Status.CLOSED;
     }
 
     public static boolean isBlocked() {
         return true;
     }
 
-    public static void setBlocked() {
+    public void setBlocked() {
     }
 }
