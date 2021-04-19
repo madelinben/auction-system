@@ -21,6 +21,7 @@ public class Auction {
     public Item item;
     public ArrayList<Bid> allBids = new ArrayList<Bid>();
     public Status status;
+    public Buyer winner;
 
     public Auction(Seller owner, Item item, double startPrice, double reservePrice, int timeLimit){
         this.status = Status.PENDING;
@@ -29,6 +30,7 @@ public class Auction {
         this.startPrice = startPrice;
         this.reservePrice = reservePrice;
         this.closeDate = LocalDate.now().plusDays(timeLimit);
+        this.winner = null;
     }
 
     public void placeBid(Buyer account) throws IOException {
@@ -84,6 +86,24 @@ public class Auction {
 
     public void close() {
         this.status = Status.CLOSED;
+        if (!this.allBids.isEmpty()) {
+            Bid highestBid = this.allBids.get(0);
+            for (Bid bid : this.allBids) {
+                if (bid.amount >= highestBid.amount){
+                    highestBid = bid;
+                }
+            }
+            if (highestBid.amount >= reservePrice){
+                this.winner = highestBid.who;
+                highestBid.who.victory(this);
+            }
+            for (Bid bid : this.allBids){
+                if (bid != highestBid){
+                    bid.who.loss(this);
+                }
+            }
+        }
+        this.winner = null;
     }
 
     public boolean isBlocked() {
