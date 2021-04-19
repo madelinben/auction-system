@@ -93,8 +93,18 @@ public class Sys {
                         displayAccountMenu();
                         break;
                     case 'b':
-                        Seller test = new Seller("test", "testpass", false);
-                        placeAuction(test);
+                        if ((accountSession != null) && (!allSellers.isEmpty())) {
+                            Seller loggedSeller = allSellers.get(0);
+                            for (Seller seller : allSellers){
+                                if (accountSession.equals(seller.getUsername())){
+                                    loggedSeller = seller;
+                                }
+                            }
+                            placeAuction(loggedSeller);
+                        }
+                        else{
+                            System.out.println("Not logged in.");
+                        }
                         break;
                     case 'c':
                         browseAuction();
@@ -200,6 +210,7 @@ public class Sys {
         int count = 0;
         boolean terminate = false;
         while (count<3 && !terminate) {
+            count++;
             System.out.print("Account Login\nUsername: ");
             String inputUser = scanner.nextLine();
             System.out.print("Password: ");
@@ -229,6 +240,7 @@ public class Sys {
             }
             if (valid) {
                 accountSession = inputUser;
+                return;
             }
         }
         return;
