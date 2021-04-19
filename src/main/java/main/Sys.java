@@ -311,33 +311,35 @@ public class Sys {
     }
 
     public static void viewAuctions() {
-        int i=0;
-        System.out.println("Num|Item|Seller|Highest bid");
-        for (Auction auction : allAuctions){
+        System.out.format("| %-5s | %-12s | %-12s | %-11s |%n|=======|==============|==============|=============|%n", "Index", "Item", "Seller", "Highest Bid"); //"| Index | Item         | Seller       | Highest Bid |"
+        for (int i=0; i<allAuctions.size(); i++) {
+            Auction auction = allAuctions.get(i);
             Bid highestBid = auction.getHighestBid();
             double highestAmount;
             if (highestBid == null) { highestAmount = 0; }
             else {highestAmount = highestBid.amount;}
-            System.out.printf("%d|%s|%s|£%.2f\n", i, auction.item.description, auction.owner.getUsername(), highestAmount);
-            i++;
+            System.out.format("| %-5d | %-12s | %-12s | £%-10.2f |%n", i+1, auction.item.description, auction.owner.getUsername(), highestAmount);
+        }
+        Auction selected = selectAuction();
+        if (selected!=null) {
+            System.out.println(selected.item.description);
         }
     }
 
     public static Auction selectAuction() {
-        int i=0;
-        while (i<3) {
-            i++;
-            viewAuctions();
-            int choice = getAnswerInt("Enter the number of the auction you want to select: ", -1);
+        int count = 0;
+        while (count<3) {
+            int choice = getAnswerInt("Enter the Auction Index you want to select: ", -1);
             if (choice >= 0) {
                 try {
-                    return allAuctions.get(choice);
+                    return allAuctions.get(choice-1);
                 } catch (Exception exception) {
-                    System.out.println("Number is out of bounds.");
+                    System.out.println("ERROR! Auction Index is out of bounds.");
                 }
             }
+            count++;
         }
-        System.out.println("No auction selected");
+        System.out.println("No Auction Selected.");
         return null;
     }
 
@@ -354,7 +356,7 @@ public class Sys {
     public static int getAnswerInt(String question, int defaultInt){
         int i=0;
         while (i<3){
-            System.out.println(question);
+            System.out.print(question);
             try {
                 int answer = Integer.parseInt(scanner.nextLine());
                 return(answer);
