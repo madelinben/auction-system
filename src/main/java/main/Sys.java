@@ -22,6 +22,7 @@ public class Sys {
     public void entry() throws java.lang.Exception {
         importUsers();
         importAuctions();
+        importBids();
         displayMenu();
     }
 
@@ -45,6 +46,51 @@ public class Sys {
             csvPrinter.close();
         } catch (Exception e) {
             System.out.println("ERROR! Parsing CSV Record.");
+        }
+    }
+
+    public void importBids() throws IOException {
+        CSVParser parser = readCSV("bid.csv");
+        for (CSVRecord record : parser) {
+            String auctionName = null, buyerString = null;
+            double bidAmount = -1;
+            LocalDate bidDate = null;
+            if (record.isSet("Auction")) {
+                if (!record.get("Auction").isEmpty()) {
+                    auctionName = record.get("Auction");
+                }
+            }
+            if (record.isSet("Buyer")) {
+                if (!record.get("Buyer").isEmpty()) {
+                    buyerString = record.get("Buyer");
+                }
+            }
+            Buyer buyerObj = null;
+            if (buyerString!=null) {
+                for (Buyer user : allBuyers) {
+                    if (user.getUsername().equals(buyerString)) {
+                        buyerObj = user;
+                    }
+                }
+            }
+            if (record.isSet("Price")) {
+                if (!record.get("Price").isEmpty()) {
+                    bidAmount = Double.parseDouble(record.get("Price"));
+                }
+            }
+            if (record.isSet("Date")) {
+                if (!record.get("Date").isEmpty()) {
+                    bidDate = LocalDate.parse(record.get("Date"));
+                }
+            }
+            if (auctionName!=null && buyerObj!=null && bidAmount!=-1 && bidDate!=null) {
+                for (Auction auction : allAuctions) {
+                    if (auction.item.description.equals(auctionName)) {
+                        auction.allBids.add(new Bid(bidAmount, buyerObj, bidDate));
+                    }
+                }
+//                allAuctions.forEach(a -> a.item.description.equals(finalAuctionName) ? a.allBids.add(new Bid(finalBidAmount, finalBuyerObj)) : null);
+            }
         }
     }
 
@@ -127,7 +173,9 @@ public class Sys {
     public static void displayMenu() throws Exception {
         boolean terminate = false;
         while (!terminate) {
-            System.out.println("Main Menu:\nA - Account Management\nB - Browse Auctions\nC - Create Auction\nQ - Quit");
+            String header = "\nMenu:\nA - Create Account\nB - ";
+            if (accountSession == null) {header += "Sign In";} else {header += "Sign Out";}
+            System.out.print(header + "\nC - Create Auction\nD - Browse Auctions\nQ - Quit\n\nInput: ");
             String userInput = scanner.nextLine().trim().toLowerCase();
             char[] input = userInput.toCharArray();
             if (input.length != 1) {
@@ -135,10 +183,13 @@ public class Sys {
             } else {
                 switch (input[0]) {
                     case 'a':
-                        displayAccountMenu();
-                        break;
+                        accountSetup();
                     case 'b':
-                        viewAuctions();
+                        if (accountSession==null) {
+                            accountAuth();
+                        } else {
+                            accountSession = null;
+                        }
                         break;
                     case 'c':
                         if ((accountSession != null) && (!allSellers.isEmpty())) {
@@ -147,6 +198,9 @@ public class Sys {
                         else{
                             System.out.println("Not logged in.");
                         }
+                        break;
+                    case 'd':
+                        viewAuctions();
                         break;
                     case 'q':
                         scanner.close();
@@ -161,52 +215,15 @@ public class Sys {
         System.exit(0);
     }
 
-    public static void displayAccountMenu() throws IOException {
-        int count = 0;
-        boolean terminate = false;
-        while (count<3 && !terminate) {
-            String menuHeader = "Account Management Menu:\nA - ";
-            if (accountSession == null) {menuHeader += "Sign In";} else {menuHeader += "Sign Out";}
-            System.out.println(menuHeader + "\nB - Create Account\nQ - Return to Menu");
-            String userInput = scanner.nextLine().trim().toLowerCase();
-            char[] input = userInput.toCharArray();
-            if (input.length != 1) {
-                System.out.println("ERROR! Please select a valid input case.");
-            } else {
-                switch (input[0]) {
-                    case 'a':
-                        if (accountSession==null) {
-                            accountAuth();
-                        } else {
-                            accountSession = null;
-                        }
-                        terminate = true;
-                        break;
-                    case 'b':
-                        terminate = true;
-                        accountSetup();
-                    case 'q':
-                        terminate = true;
-                        break;
-                    default:
-                        System.out.println("ERROR! Please select a valid input case.");
-                        count++;
-                        break;
-                }
-            }
-        }
-        return;
-    }
-
     public static void accountSetup() throws IOException {
         boolean valid = false;
         while (!valid) {
-            System.out.println("Account Type [Buyer(B)/Seller(S)]: ");
+            System.out.print("Account Type [Buyer(B)/Seller(S)]: ");
             String inputType = scanner.nextLine().trim().toLowerCase();
             if (inputType.equals("b") || inputType.equals("s")) {
                 String inputUser, inputPwd;
                 while (true) {
-                    System.out.print("Username: ");
+                    System.out.print("Enter Username: ");
                     inputUser = scanner.nextLine();
                     if (inputUser.matches("^[-\\\\w.]+$")) {
                         System.out.println("ERROR! Username should not include any special characters.");
@@ -215,7 +232,7 @@ public class Sys {
                     }
                 }
                 while (true) {
-                    System.out.print("Password: ");
+                    System.out.print("Enter Password: ");
                     inputPwd = scanner.nextLine();
                     if (inputPwd.length()<8) {
                         System.out.println("ERROR! Password must be 8 digits or longer.");
@@ -249,9 +266,9 @@ public class Sys {
         boolean terminate = false;
         while (count<3 && !terminate) {
             count++;
-            System.out.print("Account Login\nUsername: ");
+            System.out.print("Enter Username: ");
             String inputUser = scanner.nextLine();
-            System.out.print("Password: ");
+            System.out.print("Enter Password: ");
             String inputPwd = scanner.nextLine();
             boolean valid = false;
             for (Buyer account : allBuyers) {
@@ -285,7 +302,7 @@ public class Sys {
     }
 
     public static void placeAuction(Seller seller) {
-        System.out.println("Enter a description of the item: ");
+        System.out.print("Enter a description of the item: ");
         Item item = new Item();
         item.description = scanner.nextLine();
         double startPrice = getAnswerDouble("Enter starting price in £(x.xx): ", -1);
@@ -295,7 +312,6 @@ public class Sys {
         int daysTillClose = getAnswerInt("In how many days will the auction close (0-7 incl.): ", -1);
         if (daysTillClose < 0) {System.out.println("cancelling auction creation."); return;}
         allAuctions.add(new Auction(seller, item, startPrice, reservePrice, daysTillClose));
-
         ArrayList<String> auctionData = new ArrayList<String>();
         auctionData.add(item.description);
         auctionData.add(seller.getUsername());
@@ -310,34 +326,63 @@ public class Sys {
         }
     }
 
-    public static void viewAuctions() {
-        int i=0;
-        System.out.println("Num|Item|Seller|Highest bid");
-        for (Auction auction : allAuctions){
+    public static void viewAuctions() throws IOException {
+        System.out.format("%n| %-5s | %-12s | %-12s | %-11s | %-11s | %-17s |%n|=======|==============|==============|=============|=============|===================|%n", "Index", "Item", "Seller", "Highest Bid", "Start Price", "Bidding Increment");
+        for (int i=0; i<allAuctions.size(); i++) {
+            Auction auction = allAuctions.get(i);
             Bid highestBid = auction.getHighestBid();
             double highestAmount;
             if (highestBid == null) { highestAmount = 0; }
             else {highestAmount = highestBid.amount;}
-            System.out.printf("%d|%s|%s|£%.2f\n", i, auction.item.description, auction.owner.getUsername(), highestAmount);
-            i++;
+            System.out.format("| %-5d | %-12s | %-12s | £%-10.2f | £%-10.2f | £%-7.2f-£%-7.2f |%n", i+1, auction.item.description, auction.owner.getUsername(), highestAmount, auction.startPrice, auction.getLowerBidInc(), auction.getUpperBidInc());
+        }
+        if (accountSession!=null) {
+            Buyer account = null;
+            for (Buyer user : allBuyers) {
+                if (user.getUsername().equals(accountSession)) { account = user; }
+            }
+            if (account!=null) {
+                int count = 0;
+                boolean terminate = false;
+                while (count<3 && !terminate) {
+                    System.out.print("\nWould you like to place a bid [Y/N]?");
+                    String userInput = new Scanner(System.in).nextLine().trim().toLowerCase();
+                    if (userInput.equals("y")) {
+                        Auction selected = selectAuction();
+                        if (selected != null) {
+                            selected.placeBid(account);
+                            terminate = true;
+                        }
+                    } else if (userInput.equals("n")) {
+                        System.out.println("Returning to Main Menu.");
+                        terminate = true;
+                    } else {
+                        System.out.println("ERROR! Invalid value provided.");
+                        count++;
+                    }
+                }
+            } else {
+                System.out.println("\nMust be signed into a Buyer Account in order to Place a Bid.");
+            }
+        } else {
+            System.out.println("\nMust be signed into a Buyer Account in order to Place a Bid.");
         }
     }
 
     public static Auction selectAuction() {
-        int i=0;
-        while (i<3) {
-            i++;
-            viewAuctions();
-            int choice = getAnswerInt("Enter the number of the auction you want to select: ", -1);
+        int count = 0;
+        while (count<3) {
+            int choice = getAnswerInt("Enter the Auction Index you want to select: ", -1);
             if (choice >= 0) {
                 try {
-                    return allAuctions.get(choice);
+                    return allAuctions.get(choice-1);
                 } catch (Exception exception) {
-                    System.out.println("Number is out of bounds.");
+                    System.out.println("ERROR! Auction Index is out of bounds.");
                 }
             }
+            count++;
         }
-        System.out.println("No auction selected");
+        System.out.println("No Auction Selected.");
         return null;
     }
 
@@ -354,7 +399,7 @@ public class Sys {
     public static int getAnswerInt(String question, int defaultInt){
         int i=0;
         while (i<3){
-            System.out.println(question);
+            System.out.print(question);
             try {
                 int answer = Integer.parseInt(scanner.nextLine());
                 return(answer);
@@ -369,7 +414,7 @@ public class Sys {
     public static double getAnswerDouble(String question, double defaultDouble){
         int i=0;
         while (i<3){
-            System.out.println(question);
+            System.out.print(question);
             try {
                 double answer = Double.parseDouble(scanner.nextLine());
                 return(answer);
